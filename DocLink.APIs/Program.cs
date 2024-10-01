@@ -1,4 +1,9 @@
 
+using DocLink.Domain.Entities;
+using DocLink.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 namespace DocLink.APIs
 {
     public class Program
@@ -8,8 +13,17 @@ namespace DocLink.APIs
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
+            #region DbContext Registration
+            builder.Services.AddDbContext<DLDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            // Register Identity services
+            builder.Services.AddIdentity<Person, IdentityRole>()
+                .AddEntityFrameworkStores<DLDbContext>()
+                .AddDefaultTokenProviders();
+
+            #endregion
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

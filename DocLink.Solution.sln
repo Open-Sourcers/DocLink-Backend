@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocLink.APIs", "DocLink.APIs\DocLink.APIs.csproj", "{DB057E1F-A26D-429E-9D7D-0A31887D4437}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocLink.APIs", "DocLink.APIs\DocLink.APIs.csproj", "{DB057E1F-A26D-429E-9D7D-0A31887D4437}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocLink.Application", "DocLink.Application\DocLink.Application.csproj", "{5390A90F-E972-4D4E-8882-675180DFC365}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocLink.Domain", "DocLink.Domain\DocLink.Domain.csproj", "{5B6F656C-4DC8-4F1E-87A0-2213F98721E0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocLink.Infrastructure", "DocLink.Infrastructure\DocLink.Infrastructure.csproj", "{193B6A13-ADE5-4194-ACFE-CCFEDE2DAAAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{DB057E1F-A26D-429E-9D7D-0A31887D4437}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB057E1F-A26D-429E-9D7D-0A31887D4437}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB057E1F-A26D-429E-9D7D-0A31887D4437}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5390A90F-E972-4D4E-8882-675180DFC365}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5390A90F-E972-4D4E-8882-675180DFC365}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5390A90F-E972-4D4E-8882-675180DFC365}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5390A90F-E972-4D4E-8882-675180DFC365}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B6F656C-4DC8-4F1E-87A0-2213F98721E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B6F656C-4DC8-4F1E-87A0-2213F98721E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B6F656C-4DC8-4F1E-87A0-2213F98721E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B6F656C-4DC8-4F1E-87A0-2213F98721E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{193B6A13-ADE5-4194-ACFE-CCFEDE2DAAAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{193B6A13-ADE5-4194-ACFE-CCFEDE2DAAAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{193B6A13-ADE5-4194-ACFE-CCFEDE2DAAAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{193B6A13-ADE5-4194-ACFE-CCFEDE2DAAAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
