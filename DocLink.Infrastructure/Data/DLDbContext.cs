@@ -17,6 +17,15 @@ namespace DocLink.Infrastructure.Data
             
         }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Patient>()
+                .HasMany(l => l.Appointments)
+                .WithOne(a => a.Patient)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            base.OnModelCreating(builder);
+        }
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Appointment> Appointments { get; set; }

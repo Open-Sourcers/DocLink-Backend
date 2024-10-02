@@ -9,8 +9,6 @@ namespace DocLink.Domain.Entities
     public class LanguageSpoken:BaseEntity<int>
     {
         public string Name { get; set; }
-
-        public string DoctorId { get; set; }
-        public Doctor Doctor { get; set; }
+        public ICollection<Doctor> Doctors { get; set; } = new HashSet<Doctor>();
     }
 }
