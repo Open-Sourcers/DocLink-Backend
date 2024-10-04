@@ -19,7 +19,7 @@ namespace DocLink.APIs
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Register Identity services
-            builder.Services.AddIdentity<Person, IdentityRole>()
+            builder.Services.AddIdentity<Account, IdentityRole>()
                 .AddEntityFrameworkStores<DLDbContext>()
                 .AddDefaultTokenProviders();
 

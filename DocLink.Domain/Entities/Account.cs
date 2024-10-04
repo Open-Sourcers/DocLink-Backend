@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DocLink.Domain.Entities
 {
-    public class Person:IdentityUser
+    public class Account:IdentityUser
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

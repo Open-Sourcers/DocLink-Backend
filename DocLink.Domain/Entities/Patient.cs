@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace DocLink.Domain.Entities
 {
-    public class Patient:Person
-    {
-        public DateOnly BirthDay { get; set; }
+    public class Patient:BaseEntity<string>
+    { 
+        public Account Account { get; set; }
+        public DateTime BirthDay { get; set; }
         public string Gender { get; set; }
         public string EmergencyContact { get; set; }
 
