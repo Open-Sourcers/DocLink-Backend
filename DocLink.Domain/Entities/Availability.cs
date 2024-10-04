@@ -8,6 +8,7 @@ namespace DocLink.Domain.Entities
 {
     public class Availability:BaseEntity<int>
     {
+        public DateTime Day { get;set; }
         public DateTime From { get; set; }
         public DateTime To { get; set; }
 

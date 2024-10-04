@@ -4,6 +4,7 @@ using DocLink.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DocLink.Infrastructure.Migrations
 {
     [DbContext(typeof(DLDbContext))]
-    partial class DLDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241004120705_AddDayColumnInAbailabilityTable")]
+    partial class AddDayColumnInAbailabilityTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
