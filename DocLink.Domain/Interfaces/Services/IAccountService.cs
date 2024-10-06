@@ -1,4 +1,4 @@
-﻿using DocLink.Domain.DTOs;
+﻿using DocLink.Domain.DTOs.AuthDtos;
 using DocLink.Domain.Responses;
 using System;
 using System.Collections.Generic;
@@ -11,9 +11,11 @@ namespace DocLink.Domain.Interfaces.Services
     public interface IAccountService
     {
         // Register (UserToRegistrDto) => UserDto
-        Task<BaseResponse<UserDto>> Register(UserToRegisterDto User);
-        Task<BaseResponse<UserDto>> Login(UserToLogInDto User);
-
+        Task<BaseResponse> RegisterAsync(UserToRegisterDto User);
         // login (UserToLoginDto) =>
+        Task<BaseResponse> LoginAsync(UserToLogInDto User);
+        Task<BaseResponse> ForgetPasswrodAsync(ForgetPasswordDto forgetPassword);
+
+        Task<BaseResponse> ResetPasswordAsync(ResetPasswordDto resetPassword);
     }
 }
