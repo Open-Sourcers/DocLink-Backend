@@ -1,4 +1,5 @@
-﻿using DocLink.APIs.DTOs;
+﻿
+using DocLink.Domain.DTOs;
 using FluentValidation;
 
 namespace DocLink.APIs.Validators
@@ -15,8 +16,6 @@ namespace DocLink.APIs.Validators
             .Matches(@"[a-z]").WithMessage("Password must contain at least one lowercase letter")
             .Matches(@"\d").WithMessage("Password must contain at least one digit")
             .Matches(@"[\W]").WithMessage("Password must contain at least one special character (e.g., @, #, $, etc.)");
-
-
 
         }
     }

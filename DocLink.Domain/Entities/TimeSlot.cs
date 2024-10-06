@@ -11,7 +11,6 @@ namespace DocLink.Domain.Entities
         public DateTime From { get; set; }
         public DateTime To { get; set; }
         public bool IsAvailable { get; set; }
-
         public ICollection<Doctor> Doctors { get; set; }
     }
 }

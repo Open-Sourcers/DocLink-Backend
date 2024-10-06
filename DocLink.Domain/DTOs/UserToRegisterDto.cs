@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DocLink.APIs.DTOs
+namespace DocLink.Domain.DTOs
 {
     public class UserToRegisterDto
     {
         public string FirstName { get; set; }
         public string  LastName { get; set; }
-        
         public string Email { get; set; }
         public string Password { get; set; }
     }

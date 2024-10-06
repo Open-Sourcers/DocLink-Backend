@@ -2,7 +2,7 @@
 {
     public class Doctor:BaseEntity<string>
     {
-        public Account Account { get; set; }
+        public AppUser user { get; set; }
         public int YearsOfExperience { get; set; }
         public float Rate { get; set; }
         public string? About { get; set; }
@@ -14,7 +14,7 @@
         public ICollection<LanguageSpoken> Languages { get; set; } = new HashSet<LanguageSpoken>();
         public ICollection<Qualification> Qualifications { get; set; } = new HashSet<Qualification>();
         public ICollection<Availability> Availabilities { get; set; } = new HashSet<Availability>();
-        public ICollection<TimeSlot> TimeSlots { get; set; }=new HashSet<TimeSlot>();
+        public ICollection<TimeSlot> TimeSlots { get; set; } = new HashSet<TimeSlot>();
 
         public int SpecialtyId { get; set; }
         public Specialty Specialty { get; set; }

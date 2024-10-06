@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DocLink.Infrastructure.Data
 {
-    public class DLDbContext : IdentityDbContext<Account>
+    public class DLDbContext : IdentityDbContext<AppUser>
     {
         public DLDbContext(DbContextOptions<DLDbContext> options) : base(options)
         {
@@ -20,15 +20,15 @@ namespace DocLink.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<Doctor>()
-                .HasOne(x => x.Account)
+                .HasOne(x => x.user)
                 .WithOne()
-                .HasPrincipalKey<Account>(x => x.Id)
+                .HasPrincipalKey<AppUser>(x => x.Id)
                 .HasForeignKey<Doctor>(x => x.Id);
 
             builder.Entity<Patient>()
-               .HasOne(x => x.Account)
+               .HasOne(x => x.user)
                .WithOne()
-               .HasPrincipalKey<Account>(x => x.Id)
+               .HasPrincipalKey<AppUser>(x => x.Id)
                .HasForeignKey<Patient>(x => x.Id);
 
             builder.Entity<Patient>()
@@ -38,7 +38,7 @@ namespace DocLink.Infrastructure.Data
 
             base.OnModelCreating(builder);
         }
-        public DbSet<Account> Accounts { get; set; }
+        public DbSet<AppUser> Accounts { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
