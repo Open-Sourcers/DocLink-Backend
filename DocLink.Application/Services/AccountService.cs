@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,12 +17,35 @@ namespace DocLink.Application.Services
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
+        private readonly SignInManager<AppUser> _signInManager;
 
-        public AccountService(UserManager<AppUser> userManager, ITokenService tokenService)
+        public AccountService(UserManager<AppUser> userManager, ITokenService tokenService , SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+            this._signInManager = signInManager;
         }
+
+        public async Task<BaseResponse<UserDto>> Login(UserToLogInDto User)
+        {
+            var user =  await _userManager.FindByEmailAsync(User.Email);
+            if (user is null)
+                return new BaseResponse<UserDto>(401);
+            var Result = await _signInManager.CheckPasswordSignInAsync(user, User.Password, false);
+
+            if (!Result.Succeeded)
+                return new BaseResponse<UserDto>(401);
+
+            var token = await _tokenService.GenerateTokenAsync(user, _userManager);
+            var ReturndUser = new UserDto
+            {
+                DisplayName = user.FirstName + ' ' + user.LastName,
+                Email = User.Email,
+                Token = token,
+            };
+            return new BaseResponse<UserDto>(ReturndUser);
+        }
+
         public async Task<BaseResponse<UserDto>> Register(UserToRegisterDto User)
         {
             var newUser = new AppUser()
