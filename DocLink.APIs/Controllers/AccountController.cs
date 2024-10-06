@@ -1,0 +1,42 @@
+﻿using DocLink.APIs.Errors;
+using DocLink.Domain.DTOs;
+using DocLink.Domain.Entities;
+using DocLink.Domain.Interfaces.Services;
+using DocLink.Domain.Responses;
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+
+namespace DocLink.APIs.Controllers
+{
+    public class AccountController : BaseController
+    {
+        private readonly IValidator<UserToRegisterDto> registerValidator;
+        private readonly IAccountService accountService;
+        private readonly UserManager<AppUser> userManager;
+
+        public AccountController(IValidator<UserToRegisterDto> RegisterValidator, IAccountService accountService , UserManager<AppUser> userManager)
+        {
+            registerValidator = RegisterValidator;
+            this.accountService = accountService;
+            this.userManager = userManager;
+        }
+        [HttpPost]
+        public async Task<ActionResult<BaseResponse<UserDto>>> Register(UserToRegisterDto User)
+        {
+            if(EmailExists(User.Email).Result.Value)
+                return BadRequest(new BaseResponse<ApiResponse>(400, "Email Address is aleardy used"));
+            
+            return Ok(await accountService.Register(User));
+        }
+
+
+        [HttpGet("emailExists")]
+        public async Task<ActionResult<bool>> EmailExists(string Email)
+        {
+            var user = await userManager.FindByEmailAsync(Email);
+            return user is not null;
+        }
+    }
+}
