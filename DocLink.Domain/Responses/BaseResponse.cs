@@ -12,11 +12,10 @@ namespace DocLink.Domain.Responses
         public string? Message { get; set; }
         public IEnumerable<string> Errors { get; set; }
         public TEntity? Data { get; set; }
-        public BaseResponse(IEnumerable<string> errors , int _statusCode = 400)
+        public BaseResponse(IEnumerable<string> errors , int _statusCode = 400) : this(_statusCode)
         {
             Errors = new List<string>();
             Errors = errors;
-            StatusCode = _statusCode;
         }
 
         public BaseResponse(int _statusCode, string? _massage = null)
@@ -25,9 +24,8 @@ namespace DocLink.Domain.Responses
             Message = _massage ?? getMassage(_statusCode);
         }
 
-        public BaseResponse(TEntity? data , int _statusCode = 200)
+        public BaseResponse(TEntity? data , int _statusCode = 200) : this(_statusCode)
         {
-            StatusCode= _statusCode;
             Data = data;
         }
 

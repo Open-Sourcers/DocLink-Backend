@@ -12,6 +12,7 @@ namespace DocLink.Domain.Interfaces.Services
     {
         // Register (UserToRegistrDto) => UserDto
         Task<BaseResponse<UserDto>> Register(UserToRegisterDto User);
+        Task<BaseResponse<UserDto>> Login(UserToLogInDto User);
 
         // login (UserToLoginDto) =>
     }
