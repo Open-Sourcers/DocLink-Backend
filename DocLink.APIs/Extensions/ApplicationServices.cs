@@ -9,6 +9,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System.Reflection;
 
 namespace DocLink.APIs.Extensions
@@ -43,7 +44,7 @@ namespace DocLink.APIs.Extensions
                     var errors = actionContext.ModelState.Where(Parameter => Parameter.Value.Errors.Count() > 0)
                                                          .SelectMany(Parameter => Parameter.Value.Errors)
                                                          .Select(E => E.ErrorMessage).ToList();
-                    var ValidationErrorModle = new BaseResponse<object>(errors);
+                    var ValidationErrorModle = new BaseResponse(errors);
                     
                     return new BadRequestObjectResult(ValidationErrorModle);
 
@@ -51,8 +52,10 @@ namespace DocLink.APIs.Extensions
             });
             #endregion
 
+            #region General Services
             Services.AddScoped<IAccountService, AccountService>();
-
+            Services.AddMemoryCache(); 
+            #endregion
             return Services;
         }
     }

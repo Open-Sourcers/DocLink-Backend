@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DocLink.Domain.DTOs
+namespace DocLink.Domain.DTOs.AuthDtos
 {
     public class UserToLogInDto
     {
