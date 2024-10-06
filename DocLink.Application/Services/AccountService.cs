@@ -15,10 +15,12 @@ namespace DocLink.Application.Services
     public class AccountService : IAccountService
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly ITokenService _tokenService;
 
-        public AccountService(UserManager<AppUser> userManager)
+        public AccountService(UserManager<AppUser> userManager, ITokenService tokenService)
         {
             _userManager = userManager;
+            _tokenService = tokenService;
         }
         public async Task<BaseResponse<UserDto>> Register(UserToRegisterDto User)
         {
@@ -39,11 +41,12 @@ namespace DocLink.Application.Services
                 return Response;
             }
 
+            var token = await _tokenService.GenerateTokenAsync(newUser, _userManager);
             var ReturnUser = new UserDto()
             {
                 DisplayName = User.FirstName + ' ' + User.LastName,
                 Email = User.Email,
-                Token = ""
+                Token = token
             };
            return new BaseResponse<UserDto>(ReturnUser);
         }
