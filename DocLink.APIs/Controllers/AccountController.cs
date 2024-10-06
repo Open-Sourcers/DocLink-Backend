@@ -1,10 +1,10 @@
-﻿using DocLink.APIs.Errors;
-using DocLink.Domain.DTOs;
+﻿using DocLink.Domain.DTOs;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Responses;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,9 +25,9 @@ namespace DocLink.APIs.Controllers
         [HttpPost]
         public async Task<ActionResult<BaseResponse<UserDto>>> Register(UserToRegisterDto User)
         {
-            if(EmailExists(User.Email).Result.Value)
-                return BadRequest(new BaseResponse<ApiResponse>(400, "Email Address is aleardy used"));
-            
+            if (EmailExists(User.Email).Result.Value)
+                return BadRequest(new BaseResponse<object>(400, "Email Address is aleardy used"));
+
             return Ok(await accountService.Register(User));
         }
 
