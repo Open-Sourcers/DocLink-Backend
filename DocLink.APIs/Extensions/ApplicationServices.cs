@@ -1,5 +1,4 @@
-﻿using DocLink.APIs.Errors;
-using DocLink.Application.Services;
+﻿using DocLink.Application.Services;
 using DocLink.Domain.DTOs;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Services;
