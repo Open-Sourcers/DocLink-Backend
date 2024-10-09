@@ -51,11 +51,11 @@ namespace DocLink.Application.Services
         {
             var user = await _userManager.FindByEmailAsync(User.Email);
             if (user is null)
-                return new BaseResponse(StatusCodes.Status404NotFound);
+                return new BaseResponse(StatusCodes.Status400BadRequest, "Email or password is wrong!");
             var Result = await _signInManager.CheckPasswordSignInAsync(user, User.Password, false);
 
             if (!Result.Succeeded)
-                return new BaseResponse(StatusCodes.Status400BadRequest, "email or password is wrong!");
+                return new BaseResponse(StatusCodes.Status400BadRequest, "Email or password is wrong!");
 
             var token = await _tokenService.GenerateTokenAsync(user, _userManager);
             var ReturndUser = new UserDto
