@@ -1,5 +1,6 @@
 ﻿using DocLink.Domain.DTOs.AuthDtos;
 using DocLink.Domain.Entities;
+using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Responses;
 using Microsoft.AspNetCore.Http;
@@ -22,16 +23,19 @@ namespace DocLink.Application.Services
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IMemoryCache _memoryCache;
+        private readonly IEmailSender _emailSender;
 
         public AccountService(UserManager<AppUser> userManager,
-                              ITokenService tokenService ,
+                              ITokenService tokenService,
                               SignInManager<AppUser> signInManager,
-                              IMemoryCache memoryCache)
+                              IMemoryCache memoryCache,
+                              IEmailSender emailSender)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
             _memoryCache = memoryCache;
+            _emailSender = emailSender;
         }
 
         public async Task<BaseResponse> ForgetPasswrodAsync(ForgetPasswordDto forgetPassword)
@@ -42,6 +46,7 @@ namespace DocLink.Application.Services
             _memoryCache.Set(user.Email, otp, TimeSpan.FromMinutes(10));
 
             // send email to this email with otp code
+            await _emailSender.SendEmailConfirmationAsync(user.Email, otp);
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             return new BaseResponse(token, _massage: $"please confirm your email your otp {otp}");

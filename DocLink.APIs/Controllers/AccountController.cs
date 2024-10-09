@@ -42,7 +42,6 @@ namespace DocLink.APIs.Controllers
             return await _accountService.LoginAsync(User);
         }
 
-
         [HttpPost("forget-password")]
         public async Task<ActionResult<BaseResponse>> ForgetPassword(ForgetPasswordDto forgetPasswordDto)
         {

@@ -1,9 +1,8 @@
-
 using DocLink.APIs.Extensions;
-using DocLink.Domain.Entities;
-using DocLink.Infrastructure.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using DocLink.Domain.Interfaces.Interfaces;
+using DocLink.Domain.Interfaces.Services;
+using DocLink.Infrastructure.Extention;
+using DocLink.Infrastructure.Services.Email;
 
 namespace DocLink.APIs
 {
@@ -14,10 +13,12 @@ namespace DocLink.APIs
             var builder = WebApplication.CreateBuilder(args);
             // Add services to the container.
             builder.Services.AddControllers();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IEmailSender, EmailSender>();
+            builder.Services.AddFluentEmailServices(builder.Configuration);
 
             builder.Services.AddApplicationServices(builder.Configuration);
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddJwtService(builder.Configuration);
