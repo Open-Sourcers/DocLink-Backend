@@ -1,5 +1,6 @@
 ﻿using DocLink.APIs.Validators;
 using DocLink.Domain.DTOs.AuthDtos;
+using DocLink.Domain.DTOs.AuthDtos.External_Logins.Google;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Responses;
@@ -34,18 +35,31 @@ namespace DocLink.APIs.Controllers
             if (EmailExists(User.Email).Result.Value)
                 return BadRequest(new BaseResponse(400, "Email Address is aleardy used"));
 
-            return Ok(await _accountService.RegisterAsync(User));
+            var result = await _accountService.RegisterAsync(User);
+
+            if(result.StatusCode == StatusCodes.Status400BadRequest)
+                return BadRequest(result);
+
+            return Ok(result);
         }
         [HttpPost("Login")]
         public async Task<ActionResult<BaseResponse>> Login(UserToLogInDto User)
         {
-            return await _accountService.LoginAsync(User);
+            var result =  await _accountService.LoginAsync(User);
+            if (result.StatusCode == StatusCodes.Status400BadRequest)
+                return BadRequest(result);
+            
+            return Ok(result);
         }
 
         [HttpPost("forget-password")]
         public async Task<ActionResult<BaseResponse>> ForgetPassword(ForgetPasswordDto forgetPasswordDto)
         {
             var Result = await _accountService.ForgetPasswrodAsync(forgetPasswordDto);
+
+            if (Result.StatusCode == StatusCodes.Status404NotFound)
+                return NotFound(Result);
+
             return Ok(Result);
         }
 
@@ -53,6 +67,8 @@ namespace DocLink.APIs.Controllers
         public async Task<ActionResult<BaseResponse>> ResetPassword(ResetPasswordDto resetPasswordDto)
         {
             var Result = await _accountService.ResetPasswordAsync(resetPasswordDto);
+            if(Result.StatusCode == StatusCodes.Status400BadRequest)
+                return BadRequest(Result);
             return Ok(Result);
         }
         [HttpGet("emailExists")]
@@ -60,6 +76,18 @@ namespace DocLink.APIs.Controllers
         {
             var user = await _userManager.FindByEmailAsync(Email);
             return user is not null;
+        }
+
+
+        [HttpPost("SignIn-Google")]
+        public async Task<ActionResult<BaseResponse>> SignInWithGoogle(GoogleSignInDto Model)
+        {
+            var Result = await _accountService.SignInWithGoogle(Model);
+
+            if(Result.StatusCode == StatusCodes.Status400BadRequest)
+                return BadRequest(Result);
+
+            return Ok(Result);
         }
     }
 }

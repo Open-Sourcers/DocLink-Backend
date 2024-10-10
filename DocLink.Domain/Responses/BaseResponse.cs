@@ -12,6 +12,7 @@ namespace DocLink.Domain.Responses
         public string? Message { get; set; }
         public IEnumerable<string> Errors { get; set; }
         public object? Data { get; set; }
+        public BaseResponse() { }
         public BaseResponse(IEnumerable<string> errors, int _statusCode = 400) : this(_statusCode)
         {
             Errors = new List<string>();

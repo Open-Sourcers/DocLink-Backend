@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DocLink.Infrastructure.Migrations
 {
-    [DbContext(typeof(DLDbContext))]
+    [DbContext(typeof(DocLinkContext))]
     partial class DLDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
