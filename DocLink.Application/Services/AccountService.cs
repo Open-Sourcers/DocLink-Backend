@@ -1,7 +1,9 @@
 ﻿using DocLink.Domain.DTOs.AuthDtos;
+using DocLink.Domain.DTOs.AuthDtos.External_Logins.Google;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Services;
+using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -24,18 +26,21 @@ namespace DocLink.Application.Services
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IMemoryCache _memoryCache;
         private readonly IEmailSender _emailSender;
+        private readonly IGoogleAuthService _googleAuthService;
 
         public AccountService(UserManager<AppUser> userManager,
                               ITokenService tokenService,
                               SignInManager<AppUser> signInManager,
                               IMemoryCache memoryCache,
-                              IEmailSender emailSender)
+                              IEmailSender emailSender ,
+                              IGoogleAuthService googleAuthService)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
             _memoryCache = memoryCache;
             _emailSender = emailSender;
+            this._googleAuthService = googleAuthService;
         }
 
         public async Task<BaseResponse> ForgetPasswrodAsync(ForgetPasswordDto forgetPassword)
@@ -69,7 +74,7 @@ namespace DocLink.Application.Services
                 Email = User.Email,
                 Token = token,
             };
-            return new BaseResponse(ReturndUser);
+            return new BaseResponse(ReturndUser , 200 , "Successfully logged in");
         }
 
         public async Task<BaseResponse> RegisterAsync(UserToRegisterDto User)
@@ -98,7 +103,7 @@ namespace DocLink.Application.Services
                 Email = User.Email,
                 Token = token
             };
-            return new BaseResponse(ReturnUser);
+            return new BaseResponse(ReturnUser , 200 , "Successfully Register");
         }
 
         public async Task<BaseResponse> ResetPasswordAsync(ResetPasswordDto resetPassword)
@@ -120,6 +125,11 @@ namespace DocLink.Application.Services
             }
 
             return new BaseResponse(StatusCodes.Status200OK, _massage: "Password has updated Successfully.");
+        }
+
+        public async Task<BaseResponse> SignInWithGoogle(GoogleSignInDto Model)
+        {
+            return await _googleAuthService.GoogleSignInAsync(Model);
         }
     }
 }

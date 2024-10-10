@@ -2,8 +2,10 @@
 using DocLink.Domain.DTOs;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Services;
+using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
 using DocLink.Infrastructure.Data;
+using DocLink.Infrastructure.External_Services.External_Logins.Google;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
@@ -20,13 +22,13 @@ namespace DocLink.APIs.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection Services, IConfiguration Configuration)
         {
             #region DbContext Registration
-            Services.AddDbContext<DLDbContext>(options =>
+            Services.AddDbContext<DocLinkContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection")));
             #endregion
 
             #region Identity User
             Services.AddIdentity<AppUser, IdentityRole>()
-                 .AddEntityFrameworkStores<DLDbContext>()
+                 .AddEntityFrameworkStores<DocLinkContext>()
                  .AddDefaultTokenProviders();
             #endregion
 
@@ -55,6 +57,7 @@ namespace DocLink.APIs.Extensions
             #region General Services
             Services.AddScoped<IAccountService, AccountService>();
             Services.AddMemoryCache(); 
+            Services.AddScoped<IGoogleAuthService , GoogleAuthService>();
             #endregion
             return Services;
         }

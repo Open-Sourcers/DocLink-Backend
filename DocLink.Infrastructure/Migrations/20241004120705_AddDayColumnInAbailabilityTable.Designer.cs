@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DocLink.Infrastructure.Migrations
 {
-    [DbContext(typeof(DLDbContext))]
+    [DbContext(typeof(DocLinkContext))]
     [Migration("20241004120705_AddDayColumnInAbailabilityTable")]
     partial class AddDayColumnInAbailabilityTable
     {
