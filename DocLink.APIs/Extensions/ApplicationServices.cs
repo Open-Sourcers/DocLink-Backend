@@ -5,6 +5,7 @@ using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
 using DocLink.Infrastructure.Data;
+using DocLink.Infrastructure.External_Services.External_Logins.Facebook;
 using DocLink.Infrastructure.External_Services.External_Logins.Google;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -58,6 +59,7 @@ namespace DocLink.APIs.Extensions
             Services.AddScoped<IAccountService, AccountService>();
             Services.AddMemoryCache(); 
             Services.AddScoped<IGoogleAuthService , GoogleAuthService>();
+            Services.AddScoped<IFacebookAuthService , FacebookAuthService>();
             #endregion
             return Services;
         }
