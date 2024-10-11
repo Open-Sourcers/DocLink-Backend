@@ -49,6 +49,9 @@ namespace DocLink.Infrastructure.Extention
                     }
                     break;
                 case LoginProvider.Facebook:
+                    {
+                        userLoginInfo = new UserLoginInfo(loginProvider.GetDisplayName(), Model.LoginProviderSubject, loginProvider.GetDisplayName().ToUpper());
+                    }
                     break;
                 default:
                     break;

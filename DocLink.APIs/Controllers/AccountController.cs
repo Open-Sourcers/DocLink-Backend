@@ -1,5 +1,6 @@
 ﻿using DocLink.APIs.Validators;
 using DocLink.Domain.DTOs.AuthDtos;
+using DocLink.Domain.DTOs.AuthDtos.External_Logins.Facebook;
 using DocLink.Domain.DTOs.AuthDtos.External_Logins.Google;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Services;
@@ -86,6 +87,14 @@ namespace DocLink.APIs.Controllers
 
             if(Result.StatusCode == StatusCodes.Status400BadRequest)
                 return BadRequest(Result);
+
+            return Ok(Result);
+        }
+
+        [HttpPost("SignIn-Facebook")]
+        public async Task<ActionResult<BaseResponse>> SignInWithFacebook(FacebookSignInDto model)
+        {
+            var Result = await _accountService.SignInWithFacebook(model);
 
             return Ok(Result);
         }

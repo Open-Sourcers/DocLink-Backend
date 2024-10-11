@@ -1,10 +1,13 @@
 ﻿using DocLink.Domain.DTOs.AuthDtos;
+using DocLink.Domain.DTOs.AuthDtos.External_Logins.Facebook;
 using DocLink.Domain.DTOs.AuthDtos.External_Logins.Google;
 using DocLink.Domain.Entities;
+using DocLink.Domain.Enums;
 using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
+using DocLink.Domain.Responses.FacebookResponses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
@@ -27,20 +30,23 @@ namespace DocLink.Application.Services
         private readonly IMemoryCache _memoryCache;
         private readonly IEmailSender _emailSender;
         private readonly IGoogleAuthService _googleAuthService;
+        private readonly IFacebookAuthService _facebookAuthService;
 
         public AccountService(UserManager<AppUser> userManager,
                               ITokenService tokenService,
                               SignInManager<AppUser> signInManager,
                               IMemoryCache memoryCache,
                               IEmailSender emailSender ,
-                              IGoogleAuthService googleAuthService)
+                              IGoogleAuthService googleAuthService,
+                              IFacebookAuthService facebookAuthService)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
             _memoryCache = memoryCache;
             _emailSender = emailSender;
-            this._googleAuthService = googleAuthService;
+            _googleAuthService = googleAuthService;
+            _facebookAuthService = facebookAuthService;
         }
 
         public async Task<BaseResponse> ForgetPasswrodAsync(ForgetPasswordDto forgetPassword)
@@ -125,6 +131,18 @@ namespace DocLink.Application.Services
             }
 
             return new BaseResponse(StatusCodes.Status200OK, _massage: "Password has updated Successfully.");
+        }
+
+        public async Task<BaseResponse> SignInWithFacebook(FacebookSignInDto model)
+        {
+
+            var user = await _facebookAuthService.FacebookSignInAsync(model);
+
+            if (user is null) return new BaseResponse(StatusCodes.Status400BadRequest);
+
+            var jwtResponse = await _tokenService.GenerateTokenAsync((AppUser) user.Data, _userManager);
+
+           return new BaseResponse(jwtResponse);
         }
 
         public async Task<BaseResponse> SignInWithGoogle(GoogleSignInDto Model)
