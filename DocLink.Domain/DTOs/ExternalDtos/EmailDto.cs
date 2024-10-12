@@ -10,7 +10,10 @@ namespace DocLink.Domain.DTOs.ExternalDtos
     {
         public string To { get; set; }
         public string Subject { get; set; }
-        public string? Body { get; set; }
+        public string Body { get; set; }
+
+        // BodyData: will used when send email with template
+        public object? BodyData { get; set; }
         public string From { get; set; }
     }
 }

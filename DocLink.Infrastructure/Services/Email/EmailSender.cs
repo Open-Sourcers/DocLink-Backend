@@ -2,6 +2,7 @@
 using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Services;
 using Microsoft.Extensions.Configuration;
+using System.Formats.Asn1;
 
 namespace DocLink.Infrastructure.Services.Email
 {
@@ -15,7 +16,18 @@ namespace DocLink.Infrastructure.Services.Email
             _email = config.GetSection("Email:SenderEmail").Value!;
         }
 
-        public async Task<bool> SendEmailConfirmationAsync(string email, string otp)
+		public async Task<bool> SendEmailConfirmation(string email, string otp)
+		{
+            return await _emailService.SendEmail(new EmailDto
+            {
+                To = email,
+                From = _email,
+                Subject = "Open Sources - Email Confirmation",
+                Body =$"OTP : {otp}"
+            }) ;
+		}
+
+		public async Task<bool> SendForgetPasswordEmail(string email,string name, string otp)
         {
 
             return await _emailService.SendEmail(new EmailDto()
@@ -23,7 +35,7 @@ namespace DocLink.Infrastructure.Services.Email
                 To = email,
                 From = _email,
                 Subject = "Open Sources - Forget Password",
-                Body = $"OTP: {otp}",
+                Body = $"OTP : {otp}"
             });
         }
     }

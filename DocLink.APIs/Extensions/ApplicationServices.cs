@@ -14,49 +14,53 @@ using System.Reflection;
 
 namespace DocLink.APIs.Extensions
 {
-    public static class ApplicationServices
-    {
-        
-        public static IServiceCollection AddApplicationServices(this IServiceCollection Services, IConfiguration Configuration)
-        {
-            #region DbContext Registration
-            Services.AddDbContext<DLDbContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection")));
-            #endregion
+	public static class ApplicationServices
+	{
 
-            #region Identity User
-            Services.AddIdentity<AppUser, IdentityRole>()
-                 .AddEntityFrameworkStores<DLDbContext>()
-                 .AddDefaultTokenProviders();
-            #endregion
+		public static IServiceCollection AddApplicationServices(this IServiceCollection Services, IConfiguration Configuration)
+		{
+			#region DbContext Registration
+			Services.AddDbContext<DLDbContext>(options =>
+			options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection")));
+			#endregion
 
-            #region Fluent Validation
+			#region Identity User
+			Services.AddIdentity<AppUser, IdentityRole>(options =>
+			{
+				options.SignIn.RequireConfirmedEmail = true;
+				options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+			})
+			.AddEntityFrameworkStores<DLDbContext>()
+			.AddDefaultTokenProviders();
+			#endregion
 
-            Services.AddFluentValidation(fv =>{ fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());});
+			#region Fluent Validation
 
-            #endregion
+			Services.AddFluentValidation(fv => { fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()); });
 
-            #region Validation Error standard Response
-             Services.Configure<ApiBehaviorOptions>(Options =>
-            {
-                Options.InvalidModelStateResponseFactory = (actionContext) =>
-                {
-                    var errors = actionContext.ModelState.Where(Parameter => Parameter.Value.Errors.Count() > 0)
-                                                         .SelectMany(Parameter => Parameter.Value.Errors)
-                                                         .Select(E => E.ErrorMessage).ToList();
-                    var ValidationErrorModle = new BaseResponse(errors);
-                    
-                    return new BadRequestObjectResult(ValidationErrorModle);
+			#endregion
 
-                };
-            });
-            #endregion
+			#region Validation Error standard Response
+			Services.Configure<ApiBehaviorOptions>(Options =>
+		   {
+			   Options.InvalidModelStateResponseFactory = (actionContext) =>
+			   {
+				   var errors = actionContext.ModelState.Where(Parameter => Parameter.Value.Errors.Count() > 0)
+														.SelectMany(Parameter => Parameter.Value.Errors)
+														.Select(E => E.ErrorMessage).ToList();
+				   var ValidationErrorModle = new BaseResponse(errors);
 
-            #region General Services
-            Services.AddScoped<IAccountService, AccountService>();
-            Services.AddMemoryCache(); 
-            #endregion
-            return Services;
-        }
-    }
+				   return new BadRequestObjectResult(ValidationErrorModle);
+
+			   };
+		   });
+			#endregion
+
+			#region General Services
+			Services.AddScoped<IAccountService, AccountService>();
+			Services.AddMemoryCache();
+			#endregion
+			return Services;
+		}
+	}
 }

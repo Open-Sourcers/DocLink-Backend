@@ -24,7 +24,7 @@ namespace DocLink.Infrastructure.Services.Email
                 .Subject(email.Subject)
                 .Body(email.Body)
                 .SendAsync();
-            return request.Successful;
+            return request.Successful; 
         }
     }
 }

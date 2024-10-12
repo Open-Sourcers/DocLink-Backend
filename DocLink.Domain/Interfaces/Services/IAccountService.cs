@@ -17,5 +17,6 @@ namespace DocLink.Domain.Interfaces.Services
         Task<BaseResponse> ForgetPasswrodAsync(ForgetPasswordDto forgetPassword);
 
         Task<BaseResponse> ResetPasswordAsync(ResetPasswordDto resetPassword);
+        Task<BaseResponse> ConfirmEmailAsync(ConfirmEmailDto ConfirmEmail);
     }
 }

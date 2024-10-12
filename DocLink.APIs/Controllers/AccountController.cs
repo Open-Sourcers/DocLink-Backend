@@ -61,5 +61,11 @@ namespace DocLink.APIs.Controllers
             var user = await _userManager.FindByEmailAsync(Email);
             return user is not null;
         }
+
+        [HttpPost("confirm-email")]
+        public async Task<ActionResult<BaseResponse>> ConfirmEamil(ConfirmEmailDto confirmEmail)
+        {
+            return Ok(await _accountService.ConfirmEmailAsync(confirmEmail));
+        }
     }
 }
