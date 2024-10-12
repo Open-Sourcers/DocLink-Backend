@@ -142,14 +142,5 @@ namespace DocLink.Application.Services
 			return new BaseResponse(StatusCodes.Status200OK, "Email confirmed successfully.");
 		}
 
-		public Task<BaseResponse> SignInWithGoogle(GoogleSignInDto Model)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<BaseResponse> SignInWithFacebook(FacebookSignInDto model)
-		{
-			throw new NotImplementedException();
-		}
 	}
 }
