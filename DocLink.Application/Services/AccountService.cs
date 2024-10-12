@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -147,7 +148,18 @@ namespace DocLink.Application.Services
 
         public async Task<BaseResponse> SignInWithGoogle(GoogleSignInDto Model)
         {
-            return await _googleAuthService.GoogleSignInAsync(Model);
+            var Response = await _googleAuthService.GoogleSignInAsync(Model);
+            if (Response.Data is null) return new BaseResponse(StatusCodes.Status400BadRequest);
+
+            var appUser = (AppUser)Response.Data;
+            var token = await _tokenService.GenerateTokenAsync(appUser, _userManager);
+            var ReturnUser = new UserDto
+            {
+                DisplayName = appUser.FirstName + ' ' + appUser.LastName,
+                Email = appUser.Email,
+                Token = token
+            };
+            return new BaseResponse(ReturnUser);
         }
     }
 }
