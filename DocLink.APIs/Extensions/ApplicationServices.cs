@@ -28,7 +28,11 @@ namespace DocLink.APIs.Extensions
             #endregion
 
             #region Identity User
-            Services.AddIdentity<AppUser, IdentityRole>()
+            Services.AddIdentity<AppUser, IdentityRole>(options =>
+            {
+                options.SignIn.RequireConfirmedEmail = true;
+                options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+            })
                  .AddEntityFrameworkStores<DocLinkContext>()
                  .AddDefaultTokenProviders();
             #endregion

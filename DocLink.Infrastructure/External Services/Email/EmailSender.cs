@@ -15,7 +15,18 @@ namespace DocLink.Infrastructure.Services.Email
             _email = config.GetSection("Email:SenderEmail").Value!;
         }
 
-        public async Task<bool> SendEmailConfirmationAsync(string email, string otp)
+		public async Task<bool> SendEmailConfirmation(string email, string otp)
+		{
+			return await _emailService.SendEmail(new EmailDto
+			{
+				To = email,
+				From = _email,
+				Subject = "Open Sources - Email Confirmation",
+				Body = $"OTP : {otp}"
+			});
+		}
+
+		public async Task<bool> SendForgetPassword(string email,string name, string otp)
         {
 
             return await _emailService.SendEmail(new EmailDto()

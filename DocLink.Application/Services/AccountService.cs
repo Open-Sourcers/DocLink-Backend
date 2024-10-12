@@ -50,7 +50,23 @@ namespace DocLink.Application.Services
             _facebookAuthService = facebookAuthService;
         }
 
-        public async Task<BaseResponse> ForgetPasswrodAsync(ForgetPasswordDto forgetPassword)
+		public async Task<BaseResponse> ConfirmEmailAsync(ConfirmEmailDto confirmEmail)
+		{
+			var user = await _userManager.FindByEmailAsync(confirmEmail.Email);
+			if (user == null)
+			{
+				return new BaseResponse(StatusCodes.Status404NotFound, "User not found!");
+			}
+
+			var identityResult = await _userManager.ConfirmEmailAsync(user, confirmEmail.Otp);
+			if (!identityResult.Succeeded)
+			{
+				return new BaseResponse(StatusCodes.Status400BadRequest, "In valid code.");
+			}
+			return new BaseResponse(StatusCodes.Status200OK, "Email confirmed successfully.");
+		}
+
+		public async Task<BaseResponse> ForgetPasswrodAsync(ForgetPasswordDto forgetPassword)
         {
             var user = await _userManager.FindByEmailAsync(forgetPassword.Email);
             if (user is null) return new BaseResponse(StatusCodes.Status404NotFound, "Email not found");
@@ -58,7 +74,7 @@ namespace DocLink.Application.Services
             _memoryCache.Set(user.Email, otp, TimeSpan.FromMinutes(10));
 
             // send email to this email with otp code
-            await _emailSender.SendEmailConfirmationAsync(user.Email, otp);
+            await _emailSender.SendForgetPassword(user.Email,$"{user.FirstName} {user.LastName}", otp);
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             return new BaseResponse(token, _massage: $"please confirm your email your otp {otp}");
@@ -69,6 +85,12 @@ namespace DocLink.Application.Services
             var user = await _userManager.FindByEmailAsync(User.Email);
             if (user is null)
                 return new BaseResponse(StatusCodes.Status400BadRequest, "Email or password is wrong!");
+
+            var identityResult = await _userManager.IsEmailConfirmedAsync(user);
+            if (!identityResult)
+            {
+                return new BaseResponse(StatusCodes.Status400BadRequest, "Email is not confirmed.");
+            }
             var Result = await _signInManager.CheckPasswordSignInAsync(user, User.Password, false);
 
             if (!Result.Succeeded)
@@ -110,8 +132,11 @@ namespace DocLink.Application.Services
                 Email = User.Email,
                 Token = token
             };
-            return new BaseResponse(ReturnUser , 200 , "Successfully Register");
-        }
+
+			var Otp = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+			await _emailSender.SendEmailConfirmation(User.Email, Otp);
+			return new BaseResponse(ReturnUser,200, "Registration successful! Please check your email to verify your account.");
+		}
 
         public async Task<BaseResponse> ResetPasswordAsync(ResetPasswordDto resetPassword)
         {
