@@ -1,4 +1,6 @@
 ﻿using DocLink.Domain.DTOs.AuthDtos;
+using DocLink.Domain.DTOs.AuthDtos.External_Logins.Facebook;
+using DocLink.Domain.DTOs.AuthDtos.External_Logins.Google;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Services;
@@ -11,9 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Numerics;
 using System.Reflection;
-using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -103,8 +103,7 @@ namespace DocLink.Application.Services
 
 			var Otp = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
 			await _emailSender.SendEmailConfirmation(User.Email,Otp);
-
-			return new BaseResponse(ReturnUser, _massage: "Registration successful! Please check your email to verify your account.");
+			return new BaseResponse(ReturnUser,_massage: "Registration successful! Please check your email to verify your account.");
 		}
 
 		public async Task<BaseResponse> ResetPasswordAsync(ResetPasswordDto resetPassword)
@@ -138,9 +137,19 @@ namespace DocLink.Application.Services
 			var identityResult = await _userManager.ConfirmEmailAsync(user, confirmEmail.Otp);
 			if (!identityResult.Succeeded)
 			{
-				return new BaseResponse(StatusCodes.Status400BadRequest, "In valid code!");
+				return new BaseResponse(StatusCodes.Status400BadRequest, "In valid code.");
 			}
 			return new BaseResponse(StatusCodes.Status200OK, "Email confirmed successfully.");
+		}
+
+		public Task<BaseResponse> SignInWithGoogle(GoogleSignInDto Model)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<BaseResponse> SignInWithFacebook(FacebookSignInDto model)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -2,8 +2,11 @@
 using DocLink.Domain.DTOs;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Services;
+using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
 using DocLink.Infrastructure.Data;
+using DocLink.Infrastructure.External_Services.External_Logins.Facebook;
+using DocLink.Infrastructure.External_Services.External_Logins.Google;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
@@ -14,25 +17,25 @@ using System.Reflection;
 
 namespace DocLink.APIs.Extensions
 {
-	public static class ApplicationServices
-	{
+    public static class ApplicationServices
+    {
+        
+        public static IServiceCollection AddApplicationServices(this IServiceCollection Services, IConfiguration Configuration)
+        {
+            #region DbContext Registration
+            Services.AddDbContext<DocLinkContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection")));
+            #endregion
 
-		public static IServiceCollection AddApplicationServices(this IServiceCollection Services, IConfiguration Configuration)
-		{
-			#region DbContext Registration
-			Services.AddDbContext<DLDbContext>(options =>
-			options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection")));
-			#endregion
-
-			#region Identity User
+            #region Identity User
 			Services.AddIdentity<AppUser, IdentityRole>(options =>
 			{
 				options.SignIn.RequireConfirmedEmail = true;
 				options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
 			})
-			.AddEntityFrameworkStores<DLDbContext>()
+			.AddEntityFrameworkStores<DocLinkContext>()
 			.AddDefaultTokenProviders();
-			#endregion
+            #endregion
 
 			#region Fluent Validation
 
@@ -56,11 +59,14 @@ namespace DocLink.APIs.Extensions
 		   });
 			#endregion
 
-			#region General Services
-			Services.AddScoped<IAccountService, AccountService>();
-			Services.AddMemoryCache();
-			#endregion
-			return Services;
+            #region General Services
+            Services.AddScoped<IAccountService, AccountService>();
+            Services.AddMemoryCache(); 
+            Services.AddScoped<IGoogleAuthService , GoogleAuthService>();
+            Services.AddScoped<IFacebookAuthService , FacebookAuthService>();
+            #endregion
+
+            return Services;
 		}
 	}
 }
