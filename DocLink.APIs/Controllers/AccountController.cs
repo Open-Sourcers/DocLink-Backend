@@ -63,7 +63,7 @@ namespace DocLink.APIs.Controllers
         }
 
         [HttpPost("confirm-email")]
-        public async Task<ActionResult<BaseResponse>> ConfirmEamil(ConfirmEmailDto confirmEmail)
+        public async Task<ActionResult<BaseResponse>> ConfirmEmail(ConfirmEmailDto confirmEmail)
         {
             return Ok(await _accountService.ConfirmEmailAsync(confirmEmail));
         }
