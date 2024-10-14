@@ -28,7 +28,6 @@ namespace DocLink.Application.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly IMemoryCache _memoryCache;
         private readonly IEmailSender _emailSender;
         private readonly IGoogleAuthService _googleAuthService;
         private readonly IFacebookAuthService _facebookAuthService;
@@ -37,7 +36,6 @@ namespace DocLink.Application.Services
 		public AccountService(UserManager<AppUser> userManager,
 							  ITokenService tokenService,
 							  SignInManager<AppUser> signInManager,
-							  IMemoryCache memoryCache,
 							  IEmailSender emailSender,
 							  IGoogleAuthService googleAuthService,
 							  IFacebookAuthService facebookAuthService,
@@ -46,7 +44,6 @@ namespace DocLink.Application.Services
 			_userManager = userManager;
 			_tokenService = tokenService;
 			_signInManager = signInManager;
-			_memoryCache = memoryCache;
 			_emailSender = emailSender;
 			_googleAuthService = googleAuthService;
 			_facebookAuthService = facebookAuthService;
@@ -86,7 +83,7 @@ namespace DocLink.Application.Services
             await _emailSender.SendForgetPassword(user.Email,$"{user.FirstName} {user.LastName}", otp);
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            return new BaseResponse(token, _massage: $"please confirm your email your otp {otp}");
+            return new BaseResponse(token, _massage: $"please confirm your email your.");
         }
 
         public async Task<BaseResponse> LoginAsync(UserToLogInDto User)
@@ -151,7 +148,7 @@ namespace DocLink.Application.Services
                 var Errors = identityResult.Errors;
                 return new BaseResponse(Errors.ToList(), StatusCodes.Status500InternalServerError);
             }
-
+            _cache.RemoveData("Otp");
             return new BaseResponse(StatusCodes.Status200OK, _massage: "Password has updated Successfully.");
         }
 
