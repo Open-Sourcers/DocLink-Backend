@@ -28,40 +28,62 @@ namespace DocLink.Application.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly IMemoryCache _memoryCache;
         private readonly IEmailSender _emailSender;
         private readonly IGoogleAuthService _googleAuthService;
         private readonly IFacebookAuthService _facebookAuthService;
+        private readonly ICacheService _cache;
 
-        public AccountService(UserManager<AppUser> userManager,
-                              ITokenService tokenService,
-                              SignInManager<AppUser> signInManager,
-                              IMemoryCache memoryCache,
-                              IEmailSender emailSender ,
-                              IGoogleAuthService googleAuthService,
-                              IFacebookAuthService facebookAuthService)
-        {
-            _userManager = userManager;
-            _tokenService = tokenService;
-            _signInManager = signInManager;
-            _memoryCache = memoryCache;
-            _emailSender = emailSender;
-            _googleAuthService = googleAuthService;
-            _facebookAuthService = facebookAuthService;
-        }
+		public AccountService(UserManager<AppUser> userManager,
+							  ITokenService tokenService,
+							  SignInManager<AppUser> signInManager,
+							  IEmailSender emailSender,
+							  IGoogleAuthService googleAuthService,
+							  IFacebookAuthService facebookAuthService,
+							  ICacheService cache)
+		{
+			_userManager = userManager;
+			_tokenService = tokenService;
+			_signInManager = signInManager;
+			_emailSender = emailSender;
+			_googleAuthService = googleAuthService;
+			_facebookAuthService = facebookAuthService;
+			_cache = cache;
+		}
 
-        public async Task<BaseResponse> ForgetPasswrodAsync(ForgetPasswordDto forgetPassword)
+		public async Task<BaseResponse> ConfirmEmailAsync(ConfirmEmailDto confirmEmail)
+		{
+			var user = await _userManager.FindByEmailAsync(confirmEmail.Email);
+			if (user == null)
+			{
+				return new BaseResponse(StatusCodes.Status404NotFound, "User not found!");
+			}
+            var cachedOtp = _cache.GetData<string>("Otp");
+            if (cachedOtp == null)
+            {
+				return new BaseResponse(StatusCodes.Status400BadRequest, "Code time expired.");
+			}
+
+			if (cachedOtp!=confirmEmail.Otp)
+			{
+				return new BaseResponse(StatusCodes.Status400BadRequest, "In valid code.");
+			}
+
+			var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+			return new BaseResponse(new{ Token=token,Email=user.Email},StatusCodes.Status200OK, "Email confirmed successfully.");
+		}
+
+		public async Task<BaseResponse> ForgetPasswrodAsync(ForgetPasswordDto forgetPassword)
         {
             var user = await _userManager.FindByEmailAsync(forgetPassword.Email);
             if (user is null) return new BaseResponse(StatusCodes.Status404NotFound, "Email not found");
-            var otp = new Random().Next(100000, 999999).ToString();
-            _memoryCache.Set(user.Email, otp, TimeSpan.FromMinutes(10));
 
-            // send email to this email with otp code
-            await _emailSender.SendEmailConfirmationAsync(user.Email, otp);
+            var otp = new Random().Next(100000, 999999).ToString();
+            _cache.SetData("Otp",otp,TimeSpan.FromMinutes(10));
+
+            await _emailSender.SendForgetPassword(user.Email,$"{user.FirstName} {user.LastName}", otp);
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            return new BaseResponse(token, _massage: $"please confirm your email your otp {otp}");
+            return new BaseResponse(token, _massage: $"please confirm your email your.");
         }
 
         public async Task<BaseResponse> LoginAsync(UserToLogInDto User)
@@ -69,6 +91,7 @@ namespace DocLink.Application.Services
             var user = await _userManager.FindByEmailAsync(User.Email);
             if (user is null)
                 return new BaseResponse(StatusCodes.Status400BadRequest, "Email or password is wrong!");
+
             var Result = await _signInManager.CheckPasswordSignInAsync(user, User.Password, false);
 
             if (!Result.Succeeded)
@@ -98,7 +121,7 @@ namespace DocLink.Application.Services
 
             if (!Result.Succeeded)
             {
-                var errors = Result.Errors.Select(E => E.Description).ToList(); // try to use Result.Errors it self ?
+                var errors = Result.Errors.Select(E => E.Description).ToList(); // try to use identityResult.Errors it self ?
                 var Response = new BaseResponse(errors);
                 return Response;
             }
@@ -110,27 +133,22 @@ namespace DocLink.Application.Services
                 Email = User.Email,
                 Token = token
             };
-            return new BaseResponse(ReturnUser , 200 , "Successfully Register");
-        }
+
+			return new BaseResponse(ReturnUser,200, "Registration successful.");
+		}
 
         public async Task<BaseResponse> ResetPasswordAsync(ResetPasswordDto resetPassword)
         {
             var user = await _userManager.FindByEmailAsync(resetPassword.Email);
             if(user is null) return new BaseResponse(StatusCodes.Status401Unauthorized);
 
-            if (!_memoryCache.TryGetValue(resetPassword.Email, out string Otp))
-                return new BaseResponse(StatusCodes.Status400BadRequest, "Time Expired please try again");
-
-            if(Otp != resetPassword.Otp)
-                return new BaseResponse(StatusCodes.Status400BadRequest, "Invalid OTP Code");
-
-            var Result = await _userManager.ResetPasswordAsync(user, resetPassword.Token, resetPassword.NewPassword);
-            if(!Result.Succeeded)
+            var identityResult = await _userManager.ResetPasswordAsync(user, resetPassword.Token, resetPassword.NewPassword);
+            if(!identityResult.Succeeded)
             {
-                var Errors = Result.Errors;
+                var Errors = identityResult.Errors;
                 return new BaseResponse(Errors.ToList(), StatusCodes.Status500InternalServerError);
             }
-
+            _cache.RemoveData("Otp");
             return new BaseResponse(StatusCodes.Status200OK, _massage: "Password has updated Successfully.");
         }
 

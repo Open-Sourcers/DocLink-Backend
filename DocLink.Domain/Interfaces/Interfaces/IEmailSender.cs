@@ -8,6 +8,8 @@ namespace DocLink.Domain.Interfaces.Interfaces
 {
     public interface IEmailSender
     {
-        Task<bool> SendEmailConfirmationAsync(string email, string otp);
-    }
+        Task<bool> SendForgetPassword(string email,string name, string otp);
+		Task<bool> SendEmailConfirmation(string email, string otp);
+
+	}
 }

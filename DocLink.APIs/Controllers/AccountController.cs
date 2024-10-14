@@ -10,11 +10,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 namespace DocLink.APIs.Controllers
 {
     public class AccountController : BaseController
     {
+       // private readonly IValidator<ConfirmEmailDto> _confirmEmailValidator;
         private readonly IValidator<UserToRegisterDto> _registerValidator;
         private readonly IAccountService _accountService;
         private readonly UserManager<AppUser> _userManager;
@@ -97,6 +99,12 @@ namespace DocLink.APIs.Controllers
             var Result = await _accountService.SignInWithFacebook(model);
 
             return Ok(Result);
+        }
+
+        [HttpPost("Confirm-Email")]
+        public async Task<ActionResult<BaseResponse>> ConfirmEmail(ConfirmEmailDto model)
+        {
+            return Ok(await _accountService.ConfirmEmailAsync(model));
         }
     }
 }
