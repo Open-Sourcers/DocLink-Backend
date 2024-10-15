@@ -13,6 +13,7 @@ namespace DocLink.Infrastructure.Extention
                     DocLinkContext docLinkContext , CreateUserFromSocialLogin Model , LoginProvider loginProvider ) 
         {
             var user = await userManager.FindByLoginAsync(loginProvider.GetDisplayName() , Model.LoginProviderSubject);
+
             if (user is not null)
                 return user;
 
@@ -26,15 +27,12 @@ namespace DocLink.Infrastructure.Extention
                     LastName = Model.LastName,
                     Email = Model.Email,
                     UserName = Model.Email.Split("@")[0],
-                    ProfilePecture = Model.ProfilePicture
+                    ProfilePecture = Model.ProfilePicture,
+                    EmailConfirmed = true
                 };
 
                 await userManager.CreateAsync(user);
 
-                //if email confirmed
-                //user.EmailConfirmed = true;
-
-                await userManager.UpdateAsync(user);
                 await docLinkContext.SaveChangesAsync();
             }
 

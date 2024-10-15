@@ -53,10 +53,11 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Google
                FirstName = payload.GivenName,
                LastName = payload.FamilyName,
                Email = payload.Email,
-               ProfilePicture = payload.Picture
+               ProfilePicture = payload.Picture,
+               LoginProviderSubject = payload.Subject
             };
 
-            var User = _userManager.CreateUserFromSocialLogin(_docLinkContext , UserToBeCreated , LoginProvider.Google);
+            var User = await _userManager.CreateUserFromSocialLogin(_docLinkContext , UserToBeCreated , LoginProvider.Google);
 
             if (User is not null)
                 return new BaseResponse(User);
