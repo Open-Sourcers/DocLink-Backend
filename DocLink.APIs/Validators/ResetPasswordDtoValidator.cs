@@ -11,9 +11,6 @@ namespace DocLink.APIs.Validators
            .NotEmpty().WithMessage("Email is required")
            .EmailAddress().WithMessage("Invalid email format");
 
-            RuleFor(x => x.Otp)
-                .NotEmpty().WithMessage("OTP is required");
-
             RuleFor(x => x.Token)
                 .NotEmpty().WithMessage("Token is required");
 

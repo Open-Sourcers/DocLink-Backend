@@ -18,5 +18,7 @@ namespace DocLink.Domain.Interfaces.Services
         Task<BaseResponse> ResetPasswordAsync(ResetPasswordDto resetPassword);
         Task<BaseResponse> SignInWithGoogle(GoogleSignInDto Model);
         Task<BaseResponse> SignInWithFacebook(FacebookSignInDto model);
-    }
+		Task<BaseResponse> ConfirmEmailAsync(ConfirmEmailDto ConfirmEmail);
+
+	}
 }

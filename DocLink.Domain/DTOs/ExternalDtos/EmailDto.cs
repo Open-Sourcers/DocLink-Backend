@@ -10,7 +10,8 @@ namespace DocLink.Domain.DTOs.ExternalDtos
     {
         public string To { get; set; }
         public string Subject { get; set; }
-        public string? Body { get; set; }
+        public string Body { get; set; }
+        public object? BodyData { get; set; }
         public string From { get; set; }
     }
 }
