@@ -5,6 +5,7 @@ using DocLink.Domain.Enums;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
 using DocLink.Domain.Responses.FacebookResponses;
+using DocLink.Domain.Responses.Genaric;
 using DocLink.Infrastructure.Data;
 using DocLink.Infrastructure.Extention;
 using Microsoft.AspNetCore.Identity;
@@ -32,21 +33,21 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Facebook
             _context = docLinkContext;
         }
 
-        public async Task<BaseResponse> FacebookSignInAsync(FacebookSignInDto model)
+        public async Task<BaseResponse<AppUser>> FacebookSignInAsync(FacebookSignInDto model)
         {
             var ValidatedFbToken = await ValidateFacebookToken(model.AccessToken);
 
-            if (ValidatedFbToken.Errors != null && ValidatedFbToken.Errors.Any())
-                return new BaseResponse(ValidatedFbToken.Errors, "Failed to validate");
+            if (ValidatedFbToken.Data is null)
+                return new BaseResponse<AppUser>(null, "Failed to validate");
 
 
             var userInfo = await GetFacebookUserInformation(model.AccessToken);
 
             if (userInfo.Errors != null && userInfo.Errors.Any())
-                return new BaseResponse(userInfo.Errors);
+                return new BaseResponse<AppUser>(null,500,userInfo.Errors);
 
 
-            var FbUserInfo = (FacebookUserInfoResponse)userInfo.Data;
+            var FbUserInfo = userInfo.Data;
 
             var userToBeCreated = new CreateUserFromSocialLogin
             {
@@ -59,11 +60,11 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Facebook
 
             var user = await _userManager.CreateUserFromSocialLogin(_context, userToBeCreated, LoginProvider.Facebook);
 
-            return new BaseResponse(user);
+            return new BaseResponse<AppUser>(user);
 
             //return new BaseResponse(userInfo.Errors); // why this line exist?
         }
-        public async Task<BaseResponse> GetFacebookUserInformation(string accessToken)
+        public async Task<BaseResponse<FacebookUserInfoResponse>> GetFacebookUserInformation(string accessToken)
         {
             try
             {
@@ -76,7 +77,7 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Facebook
                 {
                     var responseAsString = await response.Content.ReadAsStringAsync();
                     var userInfoResponse = JsonConvert.DeserializeObject<FacebookUserInfoResponse>(responseAsString);
-                    return new BaseResponse(userInfoResponse);
+                    return new BaseResponse<FacebookUserInfoResponse>(userInfoResponse);
                 }
             }
             catch(Exception ex)
@@ -85,10 +86,11 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Facebook
                 //_logger.Error(ex.StackTrace, ex);
             }
 
-            return new BaseResponse(new List<string> { "Failed to get a response." });
+            return new BaseResponse<FacebookUserInfoResponse>(null,500,new List<string> { "Failed to get a response." });
         }
 
-        public async Task<BaseResponse> ValidateFacebookToken(string accessToken)
+
+        public async Task<BaseResponse<FacebookTokenValidationResponse>> ValidateFacebookToken(string accessToken)
         {
             try
             {
@@ -100,7 +102,7 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Facebook
                 {
                     var responseAsString = await response.Content.ReadAsStringAsync();
                     var tokenValidationResponse = JsonConvert.DeserializeObject<FacebookTokenValidationResponse>(responseAsString);
-                    return new BaseResponse(tokenValidationResponse);
+                    return new BaseResponse<FacebookTokenValidationResponse>(tokenValidationResponse);
                 }
 
             }
@@ -109,7 +111,7 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Facebook
                 // log the exception here
                 // _logger.Error(ex.StackTrace, ex);
             }
-            return new BaseResponse(new List<string> { "Failed to get a response." });
+            return new BaseResponse<FacebookTokenValidationResponse>(null, "Failed to get response");
         }
     }
 }

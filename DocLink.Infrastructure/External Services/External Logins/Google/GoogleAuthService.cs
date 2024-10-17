@@ -3,8 +3,10 @@ using DocLink.Domain.Entities;
 using DocLink.Domain.Enums;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
+using DocLink.Domain.Responses.Genaric;
 using DocLink.Infrastructure.Data;
 using DocLink.Infrastructure.Extention;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -29,7 +31,7 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Google
             this._docLinkContext = docLinkContext;
             this._configuration = configuration;
         }
-        public async Task<BaseResponse> GoogleSignInAsync(GoogleSignInDto Model)
+        public async Task<BaseResponse<AppUser>> GoogleSignInAsync(GoogleSignInDto Model)
         {
             Payload payload = new();
 
@@ -45,7 +47,7 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Google
             {
                 // logger here 
                 //_logger.Error(ex.Message, ex);
-                return new BaseResponse(new List<string> { "Failed to get a response." });
+                return new BaseResponse<AppUser>(null,StatusCodes.Status401Unauthorized ,new List<string> { "Failed to validate Google ID token."});
             }
 
             var UserToBeCreated = new CreateUserFromSocialLogin
@@ -59,11 +61,12 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Google
 
             var User = await _userManager.CreateUserFromSocialLogin(_docLinkContext , UserToBeCreated , LoginProvider.Google);
 
-            if (User is not null)
-                return new BaseResponse(User);
+            //new List<string> { "Unable to link a Local User to a Provider" }
 
-            else
-                return new BaseResponse(new List<string> { "Unable to link a Local User to a Provider" });
+            if (User is not null)
+                return new BaseResponse<AppUser>(User);
+
+            return new BaseResponse<AppUser>(null,StatusCodes.Status500InternalServerError ,new List<string> { "Unable to link a Local User to a Provider" });
         }
     }
 }

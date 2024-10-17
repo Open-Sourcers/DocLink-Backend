@@ -1,4 +1,5 @@
 ﻿using DocLink.Domain.DTOs.AuthDtos;
+using DocLink.Domain.DTOs.AuthDtos.External_Logins;
 using DocLink.Domain.DTOs.AuthDtos.External_Logins.Facebook;
 using DocLink.Domain.DTOs.AuthDtos.External_Logins.Google;
 using DocLink.Domain.Entities;
@@ -8,6 +9,7 @@ using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
 using DocLink.Domain.Responses.FacebookResponses;
+using DocLink.Domain.Responses.Genaric;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
@@ -20,6 +22,7 @@ using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using static Google.Apis.Requests.BatchRequest;
 
 namespace DocLink.Application.Services
 {
@@ -50,64 +53,66 @@ namespace DocLink.Application.Services
 			_cache = cache;
 		}
 
-		public async Task<BaseResponse> ConfirmEmailAsync(ConfirmEmailDto confirmEmail)
+		public async Task<BaseResponse<ConfirmEmailResponse>> ConfirmEmailAsync(ConfirmEmailDto confirmEmail)
 		{
 			var user = await _userManager.FindByEmailAsync(confirmEmail.Email);
+
 			if (user == null)
-			{
-				return new BaseResponse(StatusCodes.Status404NotFound, "User not found!");
-			}
+				return new BaseResponse<ConfirmEmailResponse>("User not Found",StatusCodes.Status404NotFound, new List<string> { "Email not found" });
+			
             var cachedOtp = _cache.GetData<string>("Otp");
+
             if (cachedOtp == null)
-            {
-				return new BaseResponse(StatusCodes.Status400BadRequest, "Code time expired.");
-			}
+				return new BaseResponse<ConfirmEmailResponse>("OTP is Expird",StatusCodes.Status400BadRequest,new List<string> { "Code time expired." });
+			
 
 			if (cachedOtp!=confirmEmail.Otp)
-			{
-				return new BaseResponse(StatusCodes.Status400BadRequest, "In valid code.");
-			}
-
+				return new BaseResponse<ConfirmEmailResponse>("Invalid OTP ",StatusCodes.Status400BadRequest,new List<string> { "In valid code." });
+			
 			var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-			return new BaseResponse(new{ Token=token,Email=user.Email},StatusCodes.Status200OK, "Email confirmed successfully.");
+
+            var Data = new ConfirmEmailResponse { Token = token, Email = user.Email };
+
+			return new BaseResponse<ConfirmEmailResponse>(Data, StatusCodes.Status200OK, "Email confirmed successfully.");
 		}
 
-		public async Task<BaseResponse> ForgetPasswrodAsync(ForgetPasswordDto forgetPassword)
+		public async Task<BaseResponse<PasswordResetTokenDto>> ForgetPasswrodAsync(ForgetPasswordDto forgetPassword)
         {
             var user = await _userManager.FindByEmailAsync(forgetPassword.Email);
-            if (user is null) return new BaseResponse(StatusCodes.Status404NotFound, "Email not found");
+            if (user is null) return new BaseResponse<PasswordResetTokenDto>(null,StatusCodes.Status404NotFound, "Email not found");
 
             var otp = new Random().Next(100000, 999999).ToString();
+
             _cache.SetData("Otp",otp,TimeSpan.FromMinutes(10));
 
             await _emailSender.SendForgetPassword(user.Email,$"{user.FirstName} {user.LastName}", otp);
+
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            return new BaseResponse(token, _massage: $"please confirm your email your.");
+            var response = new PasswordResetTokenDto { Token = token };
+
+            return new BaseResponse<PasswordResetTokenDto>(response , "Check Your Email to get OTP");
         }
 
-        public async Task<BaseResponse> LoginAsync(UserToLogInDto User)
+
+        public async Task<BaseResponse<JwtTokenResponse>> LoginAsync(UserToLogInDto User)
         {
             var user = await _userManager.FindByEmailAsync(User.Email);
             if (user is null)
-                return new BaseResponse(StatusCodes.Status400BadRequest, "Email or password is wrong!");
+                return new BaseResponse<JwtTokenResponse>(null,StatusCodes.Status400BadRequest, new List<string> { "Email or password is wrong!" });
 
-            var Result = await _signInManager.CheckPasswordSignInAsync(user, User.Password, false);
+            var Result = await _signInManager.PasswordSignInAsync(user , User.Password , false , false);
 
             if (!Result.Succeeded)
-                return new BaseResponse(StatusCodes.Status400BadRequest, "Email or password is wrong!");
+                return new BaseResponse<JwtTokenResponse>(null, StatusCodes.Status400BadRequest, new List<string> { "Email or password is wrong!" });
 
             var token = await _tokenService.GenerateTokenAsync(user, _userManager);
-            var ReturndUser = new UserDto
-            {
-                DisplayName = user.FirstName + ' ' + user.LastName,
-                Email = User.Email,
-                Token = token,
-            };
-            return new BaseResponse(ReturndUser , 200 , "Successfully logged in");
+            var data = new JwtTokenResponse { Token = token };
+            return new BaseResponse<JwtTokenResponse>(data , "Successfully logged in");
         }
 
-        public async Task<BaseResponse> RegisterAsync(UserToRegisterDto User)
+
+        public async Task<BaseResponse<JwtTokenResponse>> RegisterAsync(UserToRegisterDto User)
         {
             var newUser = new AppUser()
             {
@@ -122,62 +127,62 @@ namespace DocLink.Application.Services
             if (!Result.Succeeded)
             {
                 var errors = Result.Errors.Select(E => E.Description).ToList(); // try to use identityResult.Errors it self ?
-                var Response = new BaseResponse(errors);
+                var Response = new BaseResponse<JwtTokenResponse>(null,StatusCodes.Status500InternalServerError,errors);
                 return Response;
             }
 
             var token = await _tokenService.GenerateTokenAsync(newUser, _userManager);
-            var ReturnUser = new UserDto()
-            {
-                DisplayName = User.FirstName + ' ' + User.LastName,
-                Email = User.Email,
-                Token = token
-            };
-
-			return new BaseResponse(ReturnUser,200, "Registration successful.");
+            var data = new JwtTokenResponse { Token = token };
+			return new BaseResponse<JwtTokenResponse>(data, "Registeration done successfully");
 		}
 
-        public async Task<BaseResponse> ResetPasswordAsync(ResetPasswordDto resetPassword)
+        public async Task<BaseResponse<bool>> ResetPasswordAsync(ResetPasswordDto resetPassword)
         {
             var user = await _userManager.FindByEmailAsync(resetPassword.Email);
-            if(user is null) return new BaseResponse(StatusCodes.Status401Unauthorized);
+
+            if(user is null) return new BaseResponse<bool>("Faild to Find Email",StatusCodes.Status400BadRequest, new List<string> {"Your Email Not Found" });
 
             var identityResult = await _userManager.ResetPasswordAsync(user, resetPassword.Token, resetPassword.NewPassword);
+
             if(!identityResult.Succeeded)
             {
-                var Errors = identityResult.Errors;
-                return new BaseResponse(Errors.ToList(), StatusCodes.Status500InternalServerError);
+                var Errors = identityResult.Errors.ToString();
+                return new BaseResponse<bool>(false,"Falid To Reset Password" , new List<string> { Errors } , StatusCodes.Status500InternalServerError);
             }
+
             _cache.RemoveData("Otp");
-            return new BaseResponse(StatusCodes.Status200OK, _massage: "Password has updated Successfully.");
+
+            return new BaseResponse<bool>(true,StatusCodes.Status200OK, "Password has updated Successfully.");
         }
 
-        public async Task<BaseResponse> SignInWithFacebook(FacebookSignInDto model)
+
+
+        public async Task<BaseResponse<JwtTokenResponse>> SignInWithFacebook(FacebookSignInDto model)
         {
 
             var user = await _facebookAuthService.FacebookSignInAsync(model);
 
-            if (user is null) return new BaseResponse(StatusCodes.Status400BadRequest);
+            if (user is null) return new BaseResponse<JwtTokenResponse>();
 
-            var jwtResponse = await _tokenService.GenerateTokenAsync((AppUser) user.Data, _userManager);
+            var jwtResponse = await _tokenService.GenerateTokenAsync(user.Data, _userManager);
 
-           return new BaseResponse(jwtResponse);
+            var Data = new JwtTokenResponse { Token = jwtResponse };
+
+           return new BaseResponse<JwtTokenResponse>(Data);
         }
 
-        public async Task<BaseResponse> SignInWithGoogle(GoogleSignInDto Model)
+
+        public async Task<BaseResponse<JwtTokenResponse>> SignInWithGoogle(GoogleSignInDto Model)
         {
             var Response = await _googleAuthService.GoogleSignInAsync(Model);
-            if (Response.Data is null) return new BaseResponse(StatusCodes.Status400BadRequest);
+            if (Response.Errors.Any())
+                return new BaseResponse<JwtTokenResponse>(Response.ResponseMessage,Response.StatusCode ,Response.Errors);
 
-            var appUser = (AppUser)Response.Data;
-            var token = await _tokenService.GenerateTokenAsync(appUser, _userManager);
-            var ReturnUser = new UserDto
-            {
-                DisplayName = appUser.FirstName + ' ' + appUser.LastName,
-                Email = appUser.Email,
-                Token = token
-            };
-            return new BaseResponse(ReturnUser);
+            
+            var token = await _tokenService.GenerateTokenAsync(Response.Data, _userManager);
+            var data = new JwtTokenResponse { Token = token };
+
+            return new BaseResponse<JwtTokenResponse>(data);
         }
     }
 }
