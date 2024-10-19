@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DocLink.Infrastructure
 {
-    public static class SpacificationEvalutor<TEntity , TKey> where TEntity : BaseEntity<TKey>
+    public static class SpacificationEvaluator<TEntity , TKey> where TEntity : BaseEntity<TKey>
     {
         public static IQueryable<TEntity> GetQuery(IQueryable<TEntity> dbset, ISpecifications<TEntity,TKey> specifications)
         {

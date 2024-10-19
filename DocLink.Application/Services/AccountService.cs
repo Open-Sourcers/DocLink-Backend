@@ -3,26 +3,12 @@ using DocLink.Domain.DTOs.AuthDtos.External_Logins;
 using DocLink.Domain.DTOs.AuthDtos.External_Logins.Facebook;
 using DocLink.Domain.DTOs.AuthDtos.External_Logins.Google;
 using DocLink.Domain.Entities;
-using DocLink.Domain.Enums;
 using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
-using DocLink.Domain.Responses;
-using DocLink.Domain.Responses.FacebookResponses;
 using DocLink.Domain.Responses.Genaric;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
-using static Google.Apis.Requests.BatchRequest;
 
 namespace DocLink.Application.Services
 {
