@@ -25,13 +25,13 @@ namespace DocLink.APIs.Extensions
         {
             #region DbContext Registration
             Services.AddDbContext<DocLinkContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection")));
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             #endregion
 
             #region Identity User
             Services.AddIdentity<AppUser, IdentityRole>(options =>
             {
-                options.SignIn.RequireConfirmedEmail = true;
+                options.SignIn.RequireConfirmedEmail = false;
                 options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
             })
                  .AddEntityFrameworkStores<DocLinkContext>()
