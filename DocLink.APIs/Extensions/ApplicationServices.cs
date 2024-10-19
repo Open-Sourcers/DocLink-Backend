@@ -4,6 +4,7 @@ using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
+using DocLink.Infrastructure;
 using DocLink.Infrastructure.Data;
 using DocLink.Infrastructure.External_Services.Caching;
 using DocLink.Infrastructure.External_Services.External_Logins.Facebook;
@@ -66,6 +67,11 @@ namespace DocLink.APIs.Extensions
             Services.AddScoped<IGoogleAuthService , GoogleAuthService>();
             Services.AddScoped<IFacebookAuthService , FacebookAuthService>();
             Services.AddScoped<ICacheService, CacheService>();
+            #endregion
+
+            #region Error Handling
+            Services.AddExceptionHandler<GlobalErrorHandling>();
+            Services.AddProblemDetails();
             #endregion
             return Services;
         }
