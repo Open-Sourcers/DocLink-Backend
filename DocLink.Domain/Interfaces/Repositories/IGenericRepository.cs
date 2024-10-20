@@ -20,6 +20,7 @@ namespace DocLink.Domain.Interfaces.Repositories
         Task<IReadOnlyList<TEntity>> GetAllWithSpecAsync(ISpecifications<TEntity, TKey> spec);
         Task<TEntity> GetEntityWithSpecAsync(ISpecifications<TEntity, TKey> spec);
         #endregion
+
         Task AddAsync(TEntity item);
         void Remove(TEntity item);
         void Update(TEntity item);

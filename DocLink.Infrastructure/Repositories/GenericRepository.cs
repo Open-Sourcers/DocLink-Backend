@@ -13,9 +13,9 @@ namespace DocLink.Infrastructure.Repositories
 {
     public class GenericRepository<TEntity, TKey> : IGenericRepository<TEntity, TKey> where TEntity : BaseEntity<TKey>
     {
-        private readonly DocLinkContext _dbContext;
+        private readonly DocLinkDbContext _dbContext;
         private readonly DbSet<TEntity> _dbSet;
-        public GenericRepository(DocLinkContext dbContext)
+        public GenericRepository(DocLinkDbContext dbContext)
         {
             _dbContext = dbContext;
             _dbSet = _dbContext.Set<TEntity>();
@@ -33,10 +33,10 @@ namespace DocLink.Infrastructure.Repositories
         => await ApplySpecification(spec).ToListAsync();
 
         public async Task<TEntity> GetByIdAsync(int id)
-        => await _dbSet.FindAsync(id);
+        => (await _dbSet.FindAsync(id))!;
 
         public async Task<TEntity> GetEntityWithSpecAsync(ISpecifications<TEntity, TKey> spec)
-        => await ApplySpecification(spec).FirstOrDefaultAsync();
+        => (await ApplySpecification(spec).FirstOrDefaultAsync())!;
 
         private IQueryable<TEntity> ApplySpecification(ISpecifications<TEntity, TKey> Spec)
         => SpacificationEvaluator<TEntity, TKey>.GetQuery(_dbSet, Spec);

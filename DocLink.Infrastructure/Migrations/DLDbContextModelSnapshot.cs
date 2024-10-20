@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DocLink.Infrastructure.Migrations
 {
-    [DbContext(typeof(DocLinkContext))]
+    [DbContext(typeof(DocLinkDbContext))]
     partial class DLDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -34,7 +34,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasIndex("DoctorsId");
 
-                    b.ToTable("AvailabilityDoctor");
+                    b.ToTable("AvailabilityDoctor", (string)null);
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.AppUser", b =>
@@ -148,7 +148,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointments", (string)null);
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.Availability", b =>
@@ -170,7 +170,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Availabilities");
+                    b.ToTable("Availabilities", (string)null);
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.Doctor", b =>
@@ -203,7 +203,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasIndex("SpecialtyId");
 
-                    b.ToTable("Doctors");
+                    b.ToTable("Doctors", (string)null);
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.LanguageSpoken", b =>
@@ -220,7 +220,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LanguageSpokens");
+                    b.ToTable("LanguageSpokens", (string)null);
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.Patient", b =>
@@ -241,7 +241,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", (string)null);
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.Qualification", b =>
@@ -264,7 +264,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasIndex("DoctorId");
 
-                    b.ToTable("Qualifications");
+                    b.ToTable("Qualifications", (string)null);
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.Specialty", b =>
@@ -281,7 +281,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Specialties");
+                    b.ToTable("Specialties", (string)null);
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.TimeSlot", b =>
@@ -303,7 +303,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TimeSlots");
+                    b.ToTable("TimeSlots", (string)null);
                 });
 
             modelBuilder.Entity("DoctorLanguageSpoken", b =>
@@ -318,7 +318,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasIndex("LanguagesId");
 
-                    b.ToTable("DoctorLanguageSpoken");
+                    b.ToTable("DoctorLanguageSpoken", (string)null);
                 });
 
             modelBuilder.Entity("DoctorTimeSlot", b =>
@@ -333,7 +333,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasIndex("TimeSlotsId");
 
-                    b.ToTable("DoctorTimeSlot");
+                    b.ToTable("DoctorTimeSlot", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
