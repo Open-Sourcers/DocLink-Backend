@@ -36,6 +36,7 @@ namespace DocLink.APIs
 
             app.UseAuthorization();
 
+            app.UseExceptionHandler();
 
             app.MapControllers();
 
