@@ -74,7 +74,7 @@ namespace DocLink.APIs.Controllers
 
 
 
-        [HttpPost("Reset-Password")]
+        [HttpPut("Reset-Password")]
         public async Task<ActionResult<BaseResponse<bool>>> ResetPassword(ResetPasswordDto resetPasswordDto)
         {
             var Result = await _accountService.ResetPasswordAsync(resetPasswordDto);
