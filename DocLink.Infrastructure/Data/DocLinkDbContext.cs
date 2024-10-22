@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace DocLink.Infrastructure.Data
 {
-    public class DocLinkContext : IdentityDbContext<AppUser>
+    public class DocLinkDbContext : IdentityDbContext<AppUser>
     {
-        public DocLinkContext(DbContextOptions<DocLinkContext> options) : base(options)
+        public DocLinkDbContext(DbContextOptions<DocLinkDbContext> options) : base(options)
         {
 
         }

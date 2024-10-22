@@ -1,6 +1,7 @@
 ﻿using DocLink.Application.Services;
 using DocLink.Domain.DTOs;
 using DocLink.Domain.Entities;
+using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
@@ -9,6 +10,7 @@ using DocLink.Infrastructure.Data;
 using DocLink.Infrastructure.External_Services.Caching;
 using DocLink.Infrastructure.External_Services.External_Logins.Facebook;
 using DocLink.Infrastructure.External_Services.External_Logins.Google;
+using DocLink.Infrastructure.Services.Email;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
@@ -25,8 +27,10 @@ namespace DocLink.APIs.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection Services, IConfiguration Configuration)
         {
             #region DbContext Registration
+
             Services.AddDbContext<DocLinkContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection")));
+
             #endregion
 
             #region Identity User
@@ -35,7 +39,7 @@ namespace DocLink.APIs.Extensions
                 options.SignIn.RequireConfirmedEmail = false;
                 options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
             })
-                 .AddEntityFrameworkStores<DocLinkContext>()
+                 .AddEntityFrameworkStores<DocLinkDbContext>()
                  .AddDefaultTokenProviders();
             #endregion
 
@@ -67,10 +71,12 @@ namespace DocLink.APIs.Extensions
             Services.AddScoped<IGoogleAuthService , GoogleAuthService>();
             Services.AddScoped<IFacebookAuthService , FacebookAuthService>();
             Services.AddScoped<ICacheService, CacheService>();
-            #endregion
+			Services.AddScoped<IEmailService, EmailService>();
+			Services.AddScoped<IEmailSender, EmailSender>();
+			#endregion
 
-            #region Error Handling
-            Services.AddExceptionHandler<GlobalErrorHandling>();
+			#region Error Handling
+			Services.AddExceptionHandler<GlobalErrorHandling>();
             Services.AddProblemDetails();
             #endregion
             return Services;

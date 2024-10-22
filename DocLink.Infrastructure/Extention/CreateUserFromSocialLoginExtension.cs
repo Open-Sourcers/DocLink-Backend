@@ -10,7 +10,7 @@ namespace DocLink.Infrastructure.Extention
     public static class CreateUserFromSocialLoginExtension
     {
         public static async Task<AppUser> CreateUserFromSocialLogin(this UserManager<AppUser> userManager ,
-                    DocLinkContext docLinkContext , CreateUserFromSocialLogin Model , LoginProvider loginProvider ) 
+                    DocLinkDbContext docLinkContext , CreateUserFromSocialLogin Model , LoginProvider loginProvider ) 
         {
             var user = await userManager.FindByLoginAsync(loginProvider.GetDisplayName() , Model.LoginProviderSubject);
 

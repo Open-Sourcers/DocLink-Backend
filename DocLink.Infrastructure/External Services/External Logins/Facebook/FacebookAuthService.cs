@@ -20,12 +20,12 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Facebook
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly UserManager<AppUser> _userManager;
-        private readonly DocLinkContext _context;
+        private readonly DocLinkDbContext _context;
 
         public FacebookAuthService(IHttpClientFactory httpClientFactory,
                                    IConfiguration configuration,
                                    UserManager<AppUser> userManager,
-                                   DocLinkContext docLinkContext)
+                                   DocLinkDbContext docLinkContext)
         {
             _httpClient = httpClientFactory.CreateClient("Facebook");
             _configuration = configuration;

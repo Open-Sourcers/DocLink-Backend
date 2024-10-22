@@ -16,113 +16,105 @@ using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 namespace DocLink.APIs.Controllers
 {
-    public class AccountController : BaseController
-    {
-       // private readonly IValidator<ConfirmEmailDto> _confirmEmailValidator;
-        private readonly IValidator<UserToRegisterDto> _registerValidator;
-        private readonly IAccountService _accountService;
-        private readonly UserManager<AppUser> _userManager;
-        private readonly IValidator<UserToLogInDto> _userToLoginValitor;
+	public class AccountController : BaseController
+	{
+		private readonly IAccountService _accountService;
+		private readonly UserManager<AppUser> _userManager;
 
-        public AccountController(IValidator<UserToRegisterDto> RegisterValidator,
-                                 IAccountService accountService,
-                                 UserManager<AppUser> userManager,
-                                 IValidator<UserToLogInDto> UserToLoginValitor)
-        {
-            _registerValidator = RegisterValidator;
-            _accountService = accountService;
-            _userManager = userManager;
-            _userToLoginValitor = UserToLoginValitor;
-        }
-        [HttpPost("Register")]
-        public async Task<IActionResult> Register(UserToRegisterDto User)
-        {
-            if (EmailExists(User.Email).Result.Value)
-                return BadRequest(new BaseResponse<JwtTokenResponse>(null , StatusCodes.Status400BadRequest , new List<string> {"Email Address is used before"}));
+		public AccountController(
+								 IAccountService accountService,
+								 UserManager<AppUser> userManager
+								)
+		{
+			_accountService = accountService;
+			_userManager = userManager;
+		}
+		[HttpPost("Register")]
+		public async Task<IActionResult> Register(UserToRegisterDto User)
+		{
+			if (EmailExists(User.Email).Result.Value)
+				return BadRequest(new BaseResponse<JwtTokenResponse>(null, StatusCodes.Status400BadRequest, new List<string> { "Email Address is used before" }));
 
-            var result = await _accountService.RegisterAsync(User);
+			var result = await _accountService.RegisterAsync(User);
 
-            if(result.StatusCode == StatusCodes.Status500InternalServerError)
-                return StatusCode(StatusCodes.Status500InternalServerError,result);
+			if (result.StatusCode == StatusCodes.Status500InternalServerError)
+				return StatusCode(StatusCodes.Status500InternalServerError, result);
 
-            return Ok(result);
-        }
+			return Ok(result);
+		}
 
 
-        [HttpPost("Login")]
-        public async Task<ActionResult<BaseResponse<JwtTokenResponse>>> Login(UserToLogInDto User)
-        {
-            var result =  await _accountService.LoginAsync(User);
-            if (result.StatusCode == StatusCodes.Status400BadRequest)
-                return BadRequest(result);
-            
-            return Ok(result);
-        }
+		[HttpPost("Login")]
+		public async Task<ActionResult<BaseResponse<JwtTokenResponse>>> Login(UserToLogInDto User)
+		{
+			var result = await _accountService.LoginAsync(User);
+			if (result.StatusCode == StatusCodes.Status400BadRequest)
+				return BadRequest(result);
+
+			return Ok(result);
+		}
 
 
+		[HttpPost("forget-password")]
+		public async Task<ActionResult<BaseResponse>> ForgetPassword(ForgetPasswordDto forgetPasswordDto)
+		{
+			var Result = await _accountService.ForgetPasswrodAsync(forgetPasswordDto);
 
-        [HttpPost("forget-password")]
-        public async Task<ActionResult<BaseResponse>> ForgetPassword(ForgetPasswordDto forgetPasswordDto)
-        {
-            var Result = await _accountService.ForgetPasswrodAsync(forgetPasswordDto);
+			if (Result.StatusCode == StatusCodes.Status404NotFound)
+				return NotFound(Result);
 
-            if (Result.StatusCode == StatusCodes.Status404NotFound)
-                return NotFound(Result);
-
-            return Ok(Result);
-        }
-
+			return Ok(Result);
+		}
 
 
-        [HttpPut("Reset-Password")]
-        public async Task<ActionResult<BaseResponse<bool>>> ResetPassword(ResetPasswordDto resetPasswordDto)
-        {
-            var Result = await _accountService.ResetPasswordAsync(resetPasswordDto);
+		[HttpPut("Reset-Password")]
+		public async Task<ActionResult<BaseResponse<bool>>> ResetPassword(ResetPasswordDto resetPasswordDto)
+		{
+			var Result = await _accountService.ResetPasswordAsync(resetPasswordDto);
 
-            if (Result.StatusCode == StatusCodes.Status400BadRequest)
-                return BadRequest(Result);
-            else if (Result.StatusCode == StatusCodes.Status500InternalServerError)
-                return StatusCode(500, Result);
+			if (Result.StatusCode == StatusCodes.Status400BadRequest)
+				return BadRequest(Result);
+			else if (Result.StatusCode == StatusCodes.Status500InternalServerError)
+				return StatusCode(500, Result);
 
-            return Ok(Result);
-        }
-
-
-        [HttpGet("emailExists")]
-        public async Task<ActionResult<bool>> EmailExists(string Email)
-        {
-            var user = await _userManager.FindByEmailAsync(Email);
-            return user is not null;
-        }
+			return Ok(Result);
+		}
 
 
+		[HttpGet("emailExists")]
+		public async Task<ActionResult<bool>> EmailExists(string Email)
+		{
+			var user = await _userManager.FindByEmailAsync(Email);
+			return user is not null;
+		}
 
-        [HttpPost("SignIn-Google")]
-        public async Task<ActionResult<BaseResponse<JwtTokenResponse>>> SignInWithGoogle(GoogleSignInDto Model)
-        {
-            var Result = await _accountService.SignInWithGoogle(Model);
 
-            if (Result.StatusCode == StatusCodes.Status401Unauthorized)
-                return Unauthorized(Result);
+		[HttpPost("SignIn-Google")]
+		public async Task<ActionResult<BaseResponse<JwtTokenResponse>>> SignInWithGoogle(GoogleSignInDto Model)
+		{
+			var Result = await _accountService.SignInWithGoogle(Model);
 
-            else if (Result.StatusCode == StatusCodes.Status500InternalServerError)
-                return StatusCode(StatusCodes.Status500InternalServerError, Result);
+			if (Result.StatusCode == StatusCodes.Status401Unauthorized)
+				return Unauthorized(Result);
 
-            return Ok(Result);
-        }
+			else if (Result.StatusCode == StatusCodes.Status500InternalServerError)
+				return StatusCode(StatusCodes.Status500InternalServerError, Result);
 
-        [HttpPost("SignIn-Facebook")]
-        public async Task<ActionResult<BaseResponse>> SignInWithFacebook(FacebookSignInDto model)
-        {
-            var Result = await _accountService.SignInWithFacebook(model);
+			return Ok(Result);
+		}
 
-            return Ok(Result);
-        }
+		[HttpPost("SignIn-Facebook")]
+		public async Task<ActionResult<BaseResponse>> SignInWithFacebook(FacebookSignInDto model)
+		{
+			var Result = await _accountService.SignInWithFacebook(model);
 
-        [HttpPost("Confirm-Email")]
-        public async Task<ActionResult<BaseResponse>> ConfirmEmail(ConfirmEmailDto model)
-        {
-            return Ok(await _accountService.ConfirmEmailAsync(model));
-        }
-    }
+			return Ok(Result);
+		}
+
+		[HttpPost("Confirm-Email")]
+		public async Task<ActionResult<BaseResponse>> ConfirmEmail(ConfirmEmailDto model)
+		{
+			return Ok(await _accountService.ConfirmEmailAsync(model));
+		}
+	}
 }

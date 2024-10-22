@@ -1,6 +1,7 @@
 ﻿using DocLink.Domain.DTOs.ExternalDtos;
 using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
 namespace DocLink.Infrastructure.Services.Email
@@ -9,11 +10,13 @@ namespace DocLink.Infrastructure.Services.Email
     {
         private readonly IEmailService _emailService;
         private readonly string _email;
-        public EmailSender(IEmailService emailService, IConfiguration config)
-        {
-            _emailService = emailService;
-            _email = config.GetSection("Email:SenderEmail").Value!;
-        }
+        private readonly IWebHostEnvironment _webhost;
+		public EmailSender(IEmailService emailService, IConfiguration config, IWebHostEnvironment webhost)
+		{
+			_emailService = emailService;
+			_email = config.GetSection("Email:SenderEmail").Value!;
+			_webhost = webhost;
+		}
 
 		public async Task<bool> SendEmailConfirmation(string email, string otp)
 		{
@@ -28,6 +31,8 @@ namespace DocLink.Infrastructure.Services.Email
 
 		public async Task<bool> SendForgetPassword(string email,string name, string otp)
         {
+
+            // var x=File.ReadAllText(_webhost.WebRootPath)
 
             return await _emailService.SendEmail(new EmailDto()
             {

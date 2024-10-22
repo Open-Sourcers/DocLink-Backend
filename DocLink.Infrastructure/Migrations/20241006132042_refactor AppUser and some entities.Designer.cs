@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DocLink.Infrastructure.Migrations
 {
-    [DbContext(typeof(DocLinkContext))]
+    [DbContext(typeof(DocLinkDbContext))]
     [Migration("20241006132042_refactor AppUser and some entities")]
     partial class refactorAppUserandsomeentities
     {

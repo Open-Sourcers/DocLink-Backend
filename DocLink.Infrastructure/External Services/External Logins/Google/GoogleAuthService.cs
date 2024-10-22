@@ -22,10 +22,10 @@ namespace DocLink.Infrastructure.External_Services.External_Logins.Google
     public class GoogleAuthService : IGoogleAuthService
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly DocLinkContext _docLinkContext;
+        private readonly DocLinkDbContext _docLinkContext;
         private readonly IConfiguration _configuration;
 
-        public GoogleAuthService(UserManager<AppUser> userManager , DocLinkContext docLinkContext , IConfiguration configuration)
+        public GoogleAuthService(UserManager<AppUser> userManager , DocLinkDbContext docLinkContext , IConfiguration configuration)
         {
             this._userManager = userManager;
             this._docLinkContext = docLinkContext;
