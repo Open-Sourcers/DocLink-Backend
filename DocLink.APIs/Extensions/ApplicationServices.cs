@@ -27,8 +27,10 @@ namespace DocLink.APIs.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection Services, IConfiguration Configuration)
         {
             #region DbContext Registration
-            Services.AddDbContext<DocLinkDbContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            Services.AddDbContext<DocLinkContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection")));
+
             #endregion
 
             #region Identity User
