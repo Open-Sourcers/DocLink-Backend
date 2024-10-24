@@ -3,6 +3,7 @@ using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Infrastructure.Extention;
 using DocLink.Infrastructure.Services.Email;
+using Serilog;
 
 namespace DocLink.APIs
 {
@@ -22,6 +23,10 @@ namespace DocLink.APIs
             builder.Services.AddSwaggerConfigurations();
             builder.Services.AddSwaggerGen();
             builder.Services.AddJwtService(builder.Configuration);
+
+            var logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
+            builder.Logging.AddSerilog(logger);
+
             var app = builder.Build();
 
             await AutoUpdateDatabase.ApplyMigrations(app);
