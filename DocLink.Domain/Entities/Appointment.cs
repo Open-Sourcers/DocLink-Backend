@@ -1,5 +1,4 @@
-﻿using DocLink.Domain.DTOs.AppointmentDtos;
-using DocLink.Domain.Enums;
+﻿using DocLink.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +12,7 @@ namespace DocLink.Domain.Entities
         public DateTime Date { get; set; }
         public AppointmentStatus Status { get; set; }
         public DateTime CreateAT { get; set; } = DateTime.Now;
-        public PationDetails PationDetails { get; set; }
+        public PatientDetails PationDetails { get; set; }
         public string DoctorId { get; set; }
         public Doctor Doctor { get; set; }
 
