@@ -27,7 +27,7 @@ namespace DocLink.Infrastructure.Extention
                     LastName = Model.LastName,
                     Email = Model.Email,
                     UserName = Model.Email.Split("@")[0],
-                    ProfilePecture = Model.ProfilePicture,
+                    ProfilePicture = Model.ProfilePicture,
                     EmailConfirmed = true
                 };
 

@@ -28,8 +28,8 @@ namespace DocLink.APIs.Extensions
         {
             #region DbContext Registration
 
-            Services.AddDbContext<DocLinkContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection")));
+            Services.AddDbContext<DocLinkDbContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             #endregion
 
