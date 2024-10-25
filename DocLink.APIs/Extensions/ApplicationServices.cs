@@ -1,7 +1,9 @@
 ﻿using DocLink.Application.Services;
+using DocLink.Domain;
 using DocLink.Domain.DTOs;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Interfaces;
+using DocLink.Domain.Interfaces.Repositories;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
@@ -10,9 +12,11 @@ using DocLink.Infrastructure.Data;
 using DocLink.Infrastructure.External_Services.Caching;
 using DocLink.Infrastructure.External_Services.External_Logins.Facebook;
 using DocLink.Infrastructure.External_Services.External_Logins.Google;
+using DocLink.Infrastructure.Repositories;
 using DocLink.Infrastructure.Services.Email;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,8 +32,8 @@ namespace DocLink.APIs.Extensions
         {
             #region DbContext Registration
 
-            Services.AddDbContext<DocLinkContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection")));
+            Services.AddDbContext<DocLinkDbContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             #endregion
 
@@ -41,6 +45,7 @@ namespace DocLink.APIs.Extensions
             })
                  .AddEntityFrameworkStores<DocLinkDbContext>()
                  .AddDefaultTokenProviders();
+         
             #endregion
 
             #region Fluent Validation
@@ -73,10 +78,17 @@ namespace DocLink.APIs.Extensions
             Services.AddScoped<ICacheService, CacheService>();
 			Services.AddScoped<IEmailService, EmailService>();
 			Services.AddScoped<IEmailSender, EmailSender>();
-			#endregion
+            Services.AddScoped<IAppointmentService, AppointmentService>();
+            Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            #endregion
 
-			#region Error Handling
-			Services.AddExceptionHandler<GlobalErrorHandling>();
+            #region Mapster Registration
+            Services.AddMapster();
+            MapsterConfig.Configure();
+            #endregion
+
+            #region Error Handling
+            Services.AddExceptionHandler<GlobalErrorHandling>();
             Services.AddProblemDetails();
             #endregion
             return Services;
