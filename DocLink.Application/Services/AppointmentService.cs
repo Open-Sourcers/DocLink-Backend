@@ -18,15 +18,13 @@ namespace DocLink.Application.Services
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly RoleManager<AppUser> _roleManager;
         private readonly UserManager<AppUser> _userManager;
 
-        public AppointmentService(IMapper mapper , IUnitOfWork unitOfWork , RoleManager<AppUser> roleManager , UserManager<AppUser> userManager)
+        public AppointmentService(IMapper mapper , IUnitOfWork unitOfWork, UserManager<AppUser> userManager)
         {
-            this._mapper = mapper;
-            this._unitOfWork = unitOfWork;
-            this._roleManager = roleManager;
-            this._userManager = userManager;
+            _mapper = mapper;
+            _unitOfWork = unitOfWork;
+            _userManager = userManager;
         }
         public async Task<BaseResponse<bool>> CreateAppointment(CreateAppointmentDto AppointmentDetails)
         {
@@ -77,9 +75,9 @@ namespace DocLink.Application.Services
             {
                 return new BaseResponse<IReadOnlyList<AppointmentDetailsDTO>>(null, "User not Exist", null, 400);
             }
-            var Role = await _roleManager.GetRoleIdAsync(User);
+            var isPatient = await _userManager.IsInRoleAsync(User, "Patient");
             //TODO : Enum
-            if(Role == "Patient") {
+            if(isPatient) {
                 var PatientID = appointmentFilterRequestDto.ID;
                 var status = appointmentFilterRequestDto.Status;
                 var spec = new AppointmentsSpec(PatientID, status);
@@ -106,9 +104,24 @@ namespace DocLink.Application.Services
             return new BaseResponse<int>(mask);
         }
 
-        public Task<BaseResponse<bool>> RescheduleAppointment(ScheduleAppointmentDto AppointmentDate)
+        public async Task<BaseResponse<bool>> RescheduleAppointment(ScheduleAppointmentDto AppointmentDate)
         {
-            throw new NotImplementedException();
+            var appointment = await _unitOfWork.Repository<Appointment,int>().GetByIdAsync(AppointmentDate.AppointmentId);
+
+            if(appointment == null) 
+                return new BaseResponse<bool>(false , "appointment not exist" , null , 500);
+
+            appointment.Date = AppointmentDate.Date;
+            appointment.TimeSlotID = AppointmentDate.TimeSlotId;
+
+            //_unitOfWork.Repository<Appointment,int>().Update(appointment);
+
+            var Result = await _unitOfWork.SaveAsync();
+
+            if (Result <= 0)
+                return new BaseResponse<bool>(false, "Appointment not updated", null, 500);
+
+            return new BaseResponse<bool>(true, "Appointment updated sucessfuly");
         }
     }
 }

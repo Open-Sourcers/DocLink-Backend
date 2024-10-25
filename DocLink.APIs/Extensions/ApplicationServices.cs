@@ -45,6 +45,7 @@ namespace DocLink.APIs.Extensions
             })
                  .AddEntityFrameworkStores<DocLinkDbContext>()
                  .AddDefaultTokenProviders();
+         
             #endregion
 
             #region Fluent Validation

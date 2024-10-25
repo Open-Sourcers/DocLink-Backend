@@ -13,8 +13,8 @@ namespace DocLink.Domain
     {
         public static void Configure()
         {
-            TypeAdapterConfig<CreateAppointmentDto, Appointment>.NewConfig().TwoWays()
-                             .Map(dest => dest.PationDetails, src => src.PationDetails.Adapt<PatientDetails>());
+            TypeAdapterConfig<CreateAppointmentDto, Appointment>.NewConfig().TwoWays();
+                       
            
             TypeAdapterConfig<Appointment, AppointmentDetailsDTO>.NewConfig()
                              .Map(dest => dest.DoctorName, src => src.Doctor.user.FirstName)
