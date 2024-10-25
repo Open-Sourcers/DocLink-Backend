@@ -1,6 +1,6 @@
-﻿using DocLink.Application.Services;
+﻿using DocLink.Application.MappingProfile;
+using DocLink.Application.Services;
 using DocLink.Application.Utility;
-using DocLink.Domain;
 using DocLink.Domain.DTOs;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Interfaces;
@@ -8,6 +8,7 @@ using DocLink.Domain.Interfaces.Repositories;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses;
+using DocLink.Domain.Specifications;
 using DocLink.Infrastructure;
 using DocLink.Infrastructure.Data;
 using DocLink.Infrastructure.External_Services.Caching;
@@ -22,7 +23,6 @@ using MapsterMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using System.Reflection;
 
 namespace DocLink.APIs.Extensions
@@ -35,7 +35,10 @@ namespace DocLink.APIs.Extensions
 			#region DbContext Registration
 
 			Services.AddDbContext<DocLinkDbContext>(options =>
-			options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection")));
+			{
+				options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection"));
+				options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+			});
 
 			#endregion
 
@@ -79,31 +82,24 @@ namespace DocLink.APIs.Extensions
 			Services.AddScoped<ICacheService, CacheService>();
 			Services.AddScoped<IEmailService, EmailService>();
 			Services.AddScoped<IEmailSender, EmailSender>();
-            Services.AddScoped<IAppointmentService, AppointmentService>();
-            Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            #endregion
-
-            #region Mapster Registration
-            Services.AddMapster();
-            MapsterConfig.Configure();
-            #endregion
 			Services.AddScoped<IUnitOfWork, UnitOfWork>();
 			Services.AddScoped<IDoctorService, DoctorService>();
 			Services.AddHttpContextAccessor();
 			Services.AddScoped<IMedia, Media>();
 			#endregion
 
-			#region Mapester 
-			var config = TypeAdapterConfig.GlobalSettings;
-			Services.AddSingleton(config);
-			Services.AddScoped<IMapper>(sp => new Mapper(config));
+			#region Mapster Registration
+			Services.AddMapster();
+			MapsterConfig.Configure();
+			DoctorProfile.Configure();
 			#endregion
 
-            #region Error Handling
-            Services.AddExceptionHandler<GlobalErrorHandling>();
-            Services.AddProblemDetails();
-            #endregion
-            return Services;
-        }
-    }
+			#region Error Handling
+			Services.AddExceptionHandler<GlobalErrorHandling>();
+			Services.AddProblemDetails();
+			#endregion
+
+			return Services;
+		}
+	}
 }

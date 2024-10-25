@@ -58,13 +58,7 @@ namespace DocLink.Infrastructure.Data
                 
 
             });
-                   
-
-            
-            
-
-            
-         
+                
             base.OnModelCreating(builder);
         }
         public DbSet<AppUser> Accounts { get; set; }

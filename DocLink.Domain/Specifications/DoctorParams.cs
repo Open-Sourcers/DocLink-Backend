@@ -12,13 +12,12 @@ namespace DocLink.Domain.Specifications
 	{
 		OrderByRate,
 		OrderByRateDesc,
-		OrderByName,
-		OrderByNameDesc,
 	}
 	public class DoctorParams
 	{
 		public string? Name { get; set; }
 		public Sort? Sort { get; set; }
+		public string? SpecialtyName { get; set; }
 		public int pageIndex { get; set; }
 		private int pageSize = 20;
 		public int PageSize

@@ -1,36 +1,32 @@
 ﻿using DocLink.Domain.DTOs.DoctorDtos;
 using DocLink.Domain.Entities;
 using Mapster;
+using Microsoft.AspNetCore.Routing.Constraints;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DocLink.Application.MappingProfile
 {
-	internal class DoctorProfile : IRegister
+	public static class DoctorProfile 
 	{
-		public void Register(TypeAdapterConfig config)
+		public static void Configure()
 		{
-			config.NewConfig<CreateDoctorDto, AppUser>();
+			TypeAdapterConfig<CreateDoctorDto, AppUser>.NewConfig();
 
-			config.NewConfig<UpdateDoctorDto, Doctor>();
+			TypeAdapterConfig<UpdateDoctorDto, Doctor>.NewConfig()
+				.Map(dest => dest.Qualifications, src => src.Qualifications.Select(name=> new Qualification { Name=name}));
 
-			config.NewConfig<string, LanguageSpoken>()
-				 .Map(dest => dest.Name, src => src);
-
-			config.NewConfig<string, Qualification>()
-			 .Map(dest => dest.Name, src => src);
-
-			config.NewConfig<Doctor, DoctorDto>()
+			TypeAdapterConfig<Doctor, DoctorDto>.NewConfig()
 				.Map(dest => dest.FirstName, src => src.user.FirstName)
 				.Map(dest => dest.LastName, src => src.user.LastName)
 				.Map(dest => dest.UserName, src => src.user.UserName)
 				.Map(dest => dest.Email, src => src.user.Email)
 				.Map(dest => dest.Specialty, src => src.Specialty.Name)
-				.Map(dest => dest.image, src => src.user.ProfilePecture);
-
+				.Map(dest => dest.image, src => src.user.ProfilePicture);
 		}
 	}
 }

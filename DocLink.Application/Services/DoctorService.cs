@@ -1,23 +1,16 @@
-﻿using DocLink.Application.Specification;
-using DocLink.Domain.DTOs.DoctorDtos;
+﻿using DocLink.Domain.DTOs.DoctorDtos;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Enums;
 using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Repositories;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
-using DocLink.Domain.Responses;
+using DocLink.Domain.Responses.Genaric;
 using DocLink.Domain.Specifications;
 using Mapster;
-using Microsoft.AspNetCore.Authorization;
+using MapsterMapper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace DocLink.Application.Services
 {
@@ -26,17 +19,21 @@ namespace DocLink.Application.Services
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly UserManager<AppUser> _userManager;
 		private readonly IMedia _media;
-		public DoctorService(IUnitOfWork unitOfWork, UserManager<AppUser> userManager, IMedia media)
+		private readonly IEmailSender _sendEmail;
+		private readonly IMapper _mapper;
+		public DoctorService(IUnitOfWork unitOfWork, UserManager<AppUser> userManager, IMedia media, IEmailSender sendEmail, IMapper mapper)
 		{
 			_unitOfWork = unitOfWork;
 			_userManager = userManager;
 			_media = media;
+			_sendEmail = sendEmail;
+			_mapper = mapper;
 		}
 
-		public async Task<BaseResponse> CreateDoctor(CreateDoctorDto doctor)
+		public async Task<BaseResponse<bool>> CreateDoctor(CreateDoctorDto doctor)
 		{
 			var IsFound = await _userManager.FindByEmailAsync(doctor.Email);
-			if (IsFound != null) return new BaseResponse(StatusCodes.Status400BadRequest, $"User with email{doctor.Email} already exist!");
+			if (IsFound != null) return new BaseResponse<bool>(false, StatusCodes.Status400BadRequest, $"User with email{doctor.Email} already exist!");
 
 			var user = doctor.Adapt<AppUser>();
 			await _userManager.CreateAsync(user, doctor.Password);
@@ -44,64 +41,99 @@ namespace DocLink.Application.Services
 			var identityResult = await _userManager.AddToRoleAsync(user!, Roles.Doctor.ToString());
 			if (!identityResult.Succeeded)
 			{
-				return new BaseResponse(StatusCodes.Status500InternalServerError);
+				return new BaseResponse<bool>(false, StatusCodes.Status500InternalServerError);
 			}
-
-			return new BaseResponse(StatusCodes.Status200OK, "Account has been created successfully.");
+			await _sendEmail.SendDoctorAccount(doctor.Email, doctor.Password);
+			return new BaseResponse<bool>(true, StatusCodes.Status200OK, "Account has been created successfully.");
 		}
 
-		public async Task<BaseResponse> DeleteDoctor(string id)
+		public async Task<BaseResponse<bool>> DeleteDoctor(string id)
 		{
 			var user = await _userManager.FindByIdAsync(id);
 			if (user == null)
 			{
-				return new BaseResponse(StatusCodes.Status404NotFound, "Invalid user id @{id}");
+				return new BaseResponse<bool>(false, StatusCodes.Status404NotFound, $"Invalid user id {id}");
 			}
 			await _userManager.DeleteAsync(user);
-			return new BaseResponse(StatusCodes.Status200OK, "User has been deleted successfully.");
+			return new BaseResponse<bool>(true, StatusCodes.Status200OK, "User has been deleted successfully.");
 		}
 
-		public async Task<BaseResponse> GetDoctorById(string id)
+		public async Task<BaseResponse<DoctorDto>> GetDoctorById(string id)
 		{
-			var doctor = await _unitOfWork.Repository<Doctor, string>().GetByIdAsync(id);
-			if (doctor is null) return new BaseResponse(StatusCodes.Status404NotFound, $"Invalid Id {id}.");
-			return new BaseResponse(doctor.Adapt<DoctorDto>());
+			var spec = new DoctorWithRelatedData(id,user:true,specialty:true);
+			var doctor = await _unitOfWork.Repository<Doctor, string>().GetEntityWithSpecAsync(spec);
+			if (doctor is null) return new BaseResponse<DoctorDto>(null, StatusCodes.Status404NotFound, $"Invalid Id {id}.");
+
+			return new BaseResponse<DoctorDto>(_mapper.Map<DoctorDto>(doctor));
 		}
 
-		public async Task<BaseResponse> GetDoctorsWithSpec(DoctorParams param)
+		public async Task<BaseResponse<IReadOnlyList<DoctorLanguageDto>>> GetDoctorLanguages(string id)
+		{
+			var spec = new DoctorWithRelatedData(id,language:true);
+			var Doctor = await _unitOfWork.Repository<Doctor, string>().GetEntityWithSpecAsync(spec);
+			return new BaseResponse<IReadOnlyList<DoctorLanguageDto>>(_mapper.Map<IReadOnlyList<DoctorLanguageDto>>(Doctor.Languages));
+		}
+
+		public async Task<BaseResponse<IReadOnlyList<DoctorQualificationsDto>>> GetDoctorQualifications(string id)
+		{
+			var spec = new DoctorWithRelatedData(id, qualification: true);
+			var Doctor = await _unitOfWork.Repository<Doctor, string>().GetEntityWithSpecAsync(spec);
+			return new BaseResponse<IReadOnlyList<DoctorQualificationsDto>>(_mapper.Map<IReadOnlyList<DoctorQualificationsDto>>(Doctor.Qualifications));
+		}
+
+		public async Task<BaseResponse<IReadOnlyList<DoctorDto>>> GetDoctorsWithSpec(DoctorParams param)
 		{
 			var spec = new DoctorWithSpec(param);
 			var doctors = await _unitOfWork.Repository<Doctor, string>().GetAllWithSpecAsync(spec);
-			return new BaseResponse(doctors.Adapt<List<DoctorDto>>());
+			return new BaseResponse<IReadOnlyList<DoctorDto>>(_mapper.Map<IReadOnlyList<DoctorDto>>(doctors));
 		}
 
-		public async Task<BaseResponse> UpdateDoctor(string id, UpdateDoctorDto doctor)
+		public async Task<BaseResponse<DoctorDto>> UpdateDoctor(UpdateDoctorDto doctor)
 		{
-			var user = await _userManager.FindByIdAsync(id);
+			var user = await _userManager.FindByIdAsync(doctor.Id);
 			if (user == null)
 			{
-				return new BaseResponse(StatusCodes.Status404NotFound, $"InValid user id {id}");
+				return new BaseResponse<DoctorDto>(null, StatusCodes.Status404NotFound, $"InValid user id {doctor.Id}");
 			}
+
+			var IsFoundSpecialtyId = await _unitOfWork.Repository<Specialty, int>().GetByIdAsync(doctor.SpecialtyId);
+			if (IsFoundSpecialtyId == null)
+			{
+				return new BaseResponse<DoctorDto>(null, StatusCodes.Status404NotFound, $"InValid SpecialtyName Id {doctor.SpecialtyId}");
+			}
+
 			user.FirstName = doctor.FirstName ?? user.FirstName;
 			user.LastName = doctor.LastName ?? user.LastName;
-			user.ProfilePecture = doctor.image != null ? _media.UploadFile(doctor.image, nameof(Doctor)) : user.ProfilePecture;
+			user.ProfilePicture = doctor.image != null ? _media.UploadFile(doctor.image, nameof(Doctor)) : user.ProfilePicture;
 			await _userManager.UpdateAsync(user);
 
-			var mappedDoctor = doctor.Adapt<Doctor>();
-			mappedDoctor.Id = id;
-
-			var isUpdated = await _unitOfWork.Repository<Doctor, string>().GetByIdAsync(id);
+			var CreateOrUpdate = _mapper.Map<Doctor>(doctor);
+			var isUpdated = await _unitOfWork.Repository<Doctor, string>().GetByIdAsync(doctor.Id);
 
 			if (isUpdated == null)
 			{
-				await _unitOfWork.Repository<Doctor, string>().AddAsync(mappedDoctor);
+				await _unitOfWork.Repository<Doctor, string>().AddAsync(CreateOrUpdate);
 			}
 			else
 			{
-				_unitOfWork.Repository<Doctor, string>().Update(mappedDoctor);
+				_unitOfWork.Repository<Doctor, string>().Update(CreateOrUpdate);
 			}
 			await _unitOfWork.SaveAsync();
-			return new BaseResponse(StatusCodes.Status200OK, "Account has been updated successfully.");
+
+			foreach (var lang in doctor.DoctorLanguages)
+			{
+				var spec = new LanguageWithSpec(lang);
+				var docLang = await _unitOfWork.Repository<LanguageSpoken, int>().GetEntityWithSpecAsync(spec);
+				if (!docLang.Doctors.Any(d => d.Id == user.Id))
+				{
+					docLang.Doctors.Add(CreateOrUpdate);
+					_unitOfWork.Repository<LanguageSpoken, int>().Update(docLang);
+					await _unitOfWork.SaveAsync();
+				}
+			}
+			var specDock = new DoctorWithRelatedData(doctor.Id,user:true,specialty:true);
+			var dock = await _unitOfWork.Repository<Doctor, string>().GetEntityWithSpecAsync(specDock);
+			return new BaseResponse<DoctorDto>(_mapper.Map<DoctorDto>(dock), StatusCodes.Status200OK, "Account has been updated successfully.");
 		}
 
 	}

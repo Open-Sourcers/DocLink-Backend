@@ -9,10 +9,9 @@ namespace DocLink.APIs.Validators
         {
             RuleFor(x => x.YearsOfExperience).GreaterThan(-1).LessThan(50);
             RuleFor(x=>x.ConsultationFee).GreaterThan(-1);
-            RuleFor(x => x.AppointmentDuration).NotNull();
             RuleFor(x => x.SpecialtyId).NotNull().GreaterThan(-1).LessThan(100000000);
             RuleFor(x => x.Qualifications).NotNull().Must(q => q.Any() == true);
-            RuleFor(x => x.Languages).NotNull().Must(l => l.Any() == true);
+            RuleFor(x => x.DoctorLanguages).NotNull().Must(l => l.Any() == true);
         }
     }
 }
