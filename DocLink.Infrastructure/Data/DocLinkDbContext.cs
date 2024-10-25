@@ -36,6 +36,35 @@ namespace DocLink.Infrastructure.Data
                 .WithOne(x => x.Patient)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<Patient>()
+                   .Property(patient => patient.Gender)
+                   .HasConversion<string>();
+
+            builder.Entity<Appointment>(Options =>
+            {
+                Options.HasOne(app => app.TimeSlot)
+                       .WithMany(timeSlot => timeSlot.Appointments)
+                       .OnDelete(DeleteBehavior.NoAction);
+
+                Options.Property(app => app.Status)
+                       .HasConversion<string>();
+
+
+                Options.OwnsOne(app => app.PationDetails, details => { 
+                    details.WithOwner(); 
+                    details.Property(d => d.gender).HasConversion<string>();
+                });
+
+                
+
+            });
+                   
+
+            
+            
+
+            
+         
             base.OnModelCreating(builder);
         }
         public DbSet<AppUser> Accounts { get; set; }

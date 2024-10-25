@@ -1,5 +1,6 @@
 ﻿using DocLink.Application.Services;
 using DocLink.Application.Utility;
+using DocLink.Domain;
 using DocLink.Domain.DTOs;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Interfaces;
@@ -78,6 +79,14 @@ namespace DocLink.APIs.Extensions
 			Services.AddScoped<ICacheService, CacheService>();
 			Services.AddScoped<IEmailService, EmailService>();
 			Services.AddScoped<IEmailSender, EmailSender>();
+            Services.AddScoped<IAppointmentService, AppointmentService>();
+            Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            #endregion
+
+            #region Mapster Registration
+            Services.AddMapster();
+            MapsterConfig.Configure();
+            #endregion
 			Services.AddScoped<IUnitOfWork, UnitOfWork>();
 			Services.AddScoped<IDoctorService, DoctorService>();
 			Services.AddHttpContextAccessor();
@@ -90,11 +99,11 @@ namespace DocLink.APIs.Extensions
 			Services.AddScoped<IMapper>(sp => new Mapper(config));
 			#endregion
 
-			#region Error Handling
-			Services.AddExceptionHandler<GlobalErrorHandling>();
-			Services.AddProblemDetails();
-			#endregion
-			return Services;
-		}
-	}
+            #region Error Handling
+            Services.AddExceptionHandler<GlobalErrorHandling>();
+            Services.AddProblemDetails();
+            #endregion
+            return Services;
+        }
+    }
 }
