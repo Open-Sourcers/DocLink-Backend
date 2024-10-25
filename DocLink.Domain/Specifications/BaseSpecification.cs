@@ -11,7 +11,7 @@ namespace DocLink.Domain.Specifications
     public class BaseSpecification<TEntity, Tkey> : ISpecifications<TEntity, Tkey> where TEntity : BaseEntity<Tkey>
     {
         public List<Expression<Func<TEntity, object>>> Includes { get; set; } = new List<Expression<Func<TEntity, object>>>();
-        public Expression<Func<TEntity, bool>> Critertia { get; set; }
+        public Expression<Func<TEntity, bool>> Criteria { get; set; }
         public Expression<Func<TEntity, object>> OrderBy { get; set; }
         public Expression<Func<TEntity, object>> OrderByDescending { get; set; }    
         public int Skip { get; set; }
@@ -22,7 +22,7 @@ namespace DocLink.Domain.Specifications
 
         public BaseSpecification(Expression<Func<TEntity, bool>> critertia)
         {
-            Critertia = critertia;
+            Criteria = critertia;
         }
 
         public void AddOrder(Expression<Func<TEntity, object>> expression) { OrderBy = expression; }

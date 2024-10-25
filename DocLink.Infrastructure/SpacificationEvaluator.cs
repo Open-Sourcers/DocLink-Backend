@@ -15,8 +15,8 @@ namespace DocLink.Infrastructure
         {
             IQueryable<TEntity> query = dbset;
 
-            if (specifications.Critertia is not null)
-                query = query.Where(specifications.Critertia);
+            if (specifications.Criteria is not null)
+                query = query.Where(specifications.Criteria);
 
 
             if (specifications.OrderBy is not null)
