@@ -12,7 +12,7 @@ namespace DocLink.APIs.Controllers
 
         public AppointmentController(IAppointmentService appointmentService)
         {
-            this._appointmentService = appointmentService;
+            _appointmentService = appointmentService;
         }
 
         [HttpPost]
