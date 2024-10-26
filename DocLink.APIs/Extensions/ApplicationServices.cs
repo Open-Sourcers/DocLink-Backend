@@ -36,7 +36,7 @@ namespace DocLink.APIs.Extensions
 
 			Services.AddDbContext<DocLinkDbContext>(options =>
 			{
-				options.UseSqlServer(Configuration.GetConnectionString("RemoteConnection"));
+				options.UseSqlServer(Configuration.GetConnectionString("DataBaseConnection"));
 				options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 			});
 
