@@ -6,11 +6,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace DocLink.Infrastructure.Services.Email
 {
-    public class EmailSender : IEmailSender
-    {
-        private readonly IEmailService _emailService;
-        private readonly string _email;
-        private readonly IWebHostEnvironment _webhost;
+	public class EmailSender : IEmailSender
+	{
+		private readonly IEmailService _emailService;
+		private readonly string _email;
+		private readonly IWebHostEnvironment _webhost;
 		public EmailSender(IEmailService emailService, IConfiguration config, IWebHostEnvironment webhost)
 		{
 			_emailService = emailService;
@@ -28,19 +28,29 @@ namespace DocLink.Infrastructure.Services.Email
 				Body = $"OTP : {otp}"
 			});
 		}
+		public async Task<bool> SendForgetPassword(string email, string name, string otp)
+		{
 
-		public async Task<bool> SendForgetPassword(string email,string name, string otp)
-        {
-
-            // var x=File.ReadAllText(_webhost.WebRootPath)
-
-            return await _emailService.SendEmail(new EmailDto()
-            {
-                To = email,
-                From = _email,
-                Subject = "Open Sources - Forget Password",
-                Body = $"OTP: {otp}",
-            });
-        }
-    }
+			// var x=File.ReadAllText(_webhost.WebRootPath)
+			//TODO: create template
+			return await _emailService.SendEmail(new EmailDto()
+			{
+				To = email,
+				From = _email,
+				Subject = "Open Sources - Forget Password",
+				Body = $"OTP: {otp}",
+			});
+		}
+		public async Task<bool> SendDoctorAccount(string email, string password)
+		{
+			return await _emailService.SendEmail(new EmailDto()
+			{
+				To = email,
+				From = _email,
+				Subject = "Open Sources - Doctor Account",
+				Body = $"Email: {email}\n" +
+				$"Password: {password}"
+			});
+		}
+	}
 }

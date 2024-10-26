@@ -1,7 +1,7 @@
-﻿using DocLink.Domain.DTOs.AppointmentDtos;
+﻿using DocLink.Application.Services;
+using DocLink.Domain.DTOs.AppointmentDtos;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Responses.Genaric;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocLink.APIs.Controllers
@@ -12,7 +12,7 @@ namespace DocLink.APIs.Controllers
 
         public AppointmentController(IAppointmentService appointmentService)
         {
-            this._appointmentService = appointmentService;
+            _appointmentService = appointmentService;
         }
 
         [HttpPost]
