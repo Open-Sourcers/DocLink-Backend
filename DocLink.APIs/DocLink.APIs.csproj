@@ -24,4 +24,8 @@
     <ProjectReference Include="..\DocLink.Infrastructure\DocLink.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\Doctor\" />
+  </ItemGroup>
+
 </Project>

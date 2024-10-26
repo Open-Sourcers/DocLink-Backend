@@ -13,7 +13,7 @@ namespace DocLink.Domain.Interfaces.Repositories
         #region Without Specification
         Task<IReadOnlyList<TEntity>> GetAllAsync();
 
-        Task<TEntity> GetByIdAsync(int id);
+        Task<TEntity> GetByIdAsync(TKey id);
         #endregion
 
         #region With Specification

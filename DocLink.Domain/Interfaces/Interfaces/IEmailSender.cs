@@ -10,6 +10,7 @@ namespace DocLink.Domain.Interfaces.Interfaces
     {
         Task<bool> SendForgetPassword(string email,string name, string otp);
 		Task<bool> SendEmailConfirmation(string email, string otp);
-
+        Task<bool> SendDoctorAccount(string email, string password);
+        
 	}
 }
