@@ -31,12 +31,17 @@ namespace DocLink.APIs
 
             await AutoUpdateDatabase.ApplyMigrations(app);
 
-           // if (app.Environment.IsDevelopment())
+            if (app.Environment.IsProduction())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

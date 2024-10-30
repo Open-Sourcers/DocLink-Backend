@@ -22,21 +22,6 @@ namespace DocLink.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("AvailabilityDoctor", b =>
-                {
-                    b.Property<int>("AvailabilitiesId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DoctorsId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("AvailabilitiesId", "DoctorsId");
-
-                    b.HasIndex("DoctorsId");
-
-                    b.ToTable("AvailabilityDoctor", (string)null);
-                });
-
             modelBuilder.Entity("DocLink.Domain.Entities.AppUser", b =>
                 {
                     b.Property<string>("Id")
@@ -87,7 +72,7 @@ namespace DocLink.Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ProfilePecture")
+                    b.Property<string>("ProfilePicture")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
@@ -131,9 +116,6 @@ namespace DocLink.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("Duration")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("PatientId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -142,35 +124,18 @@ namespace DocLink.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TimeSlotID")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DoctorId");
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Appointments", (string)null);
-                });
+                    b.HasIndex("TimeSlotID");
 
-            modelBuilder.Entity("DocLink.Domain.Entities.Availability", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Day")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("From")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("To")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Availabilities", (string)null);
+                    b.ToTable("Appointments");
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.Doctor", b =>
@@ -180,9 +145,6 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.Property<string>("About")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("AppointmentDuration")
-                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("ConsultationFee")
                         .HasColumnType("decimal(18,2)");
@@ -203,7 +165,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasIndex("SpecialtyId");
 
-                    b.ToTable("Doctors", (string)null);
+                    b.ToTable("Doctors");
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.LanguageSpoken", b =>
@@ -220,7 +182,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LanguageSpokens", (string)null);
+                    b.ToTable("LanguageSpokens");
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.Patient", b =>
@@ -241,7 +203,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Patients", (string)null);
+                    b.ToTable("Patients");
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.Qualification", b =>
@@ -264,10 +226,10 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasIndex("DoctorId");
 
-                    b.ToTable("Qualifications", (string)null);
+                    b.ToTable("Qualifications");
                 });
 
-            modelBuilder.Entity("DocLink.Domain.Entities.Specialty", b =>
+            modelBuilder.Entity("DocLink.Domain.Entities.SpecialtyName", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -281,7 +243,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Specialties", (string)null);
+                    b.ToTable("Specialties");
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.TimeSlot", b =>
@@ -292,18 +254,12 @@ namespace DocLink.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("From")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("To")
+                    b.Property<DateTime>("Time")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("TimeSlots", (string)null);
+                    b.ToTable("TimeSlots");
                 });
 
             modelBuilder.Entity("DoctorLanguageSpoken", b =>
@@ -318,22 +274,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.HasIndex("LanguagesId");
 
-                    b.ToTable("DoctorLanguageSpoken", (string)null);
-                });
-
-            modelBuilder.Entity("DoctorTimeSlot", b =>
-                {
-                    b.Property<string>("DoctorsId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("TimeSlotsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DoctorsId", "TimeSlotsId");
-
-                    b.HasIndex("TimeSlotsId");
-
-                    b.ToTable("DoctorTimeSlot", (string)null);
+                    b.ToTable("DoctorLanguageSpoken");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -469,21 +410,6 @@ namespace DocLink.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("AvailabilityDoctor", b =>
-                {
-                    b.HasOne("DocLink.Domain.Entities.Availability", null)
-                        .WithMany()
-                        .HasForeignKey("AvailabilitiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DocLink.Domain.Entities.Doctor", null)
-                        .WithMany()
-                        .HasForeignKey("DoctorsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("DocLink.Domain.Entities.Appointment", b =>
                 {
                     b.HasOne("DocLink.Domain.Entities.Doctor", "Doctor")
@@ -498,9 +424,49 @@ namespace DocLink.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("DocLink.Domain.Entities.TimeSlot", "TimeSlot")
+                        .WithMany("Appointments")
+                        .HasForeignKey("TimeSlotID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.OwnsOne("DocLink.Domain.DTOs.AppointmentDtos.PationDetails", "PationDetails", b1 =>
+                        {
+                            b1.Property<int>("AppointmentId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("AgeRange")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("FullName")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("ProblemDescription")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("gender")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("AppointmentId");
+
+                            b1.ToTable("Appointments");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppointmentId");
+                        });
+
                     b.Navigation("Doctor");
 
                     b.Navigation("Patient");
+
+                    b.Navigation("PationDetails")
+                        .IsRequired();
+
+                    b.Navigation("TimeSlot");
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.Doctor", b =>
@@ -511,13 +477,13 @@ namespace DocLink.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DocLink.Domain.Entities.Specialty", "Specialty")
+                    b.HasOne("DocLink.Domain.Entities.SpecialtyName", "SpecialtyName")
                         .WithMany("Doctors")
                         .HasForeignKey("SpecialtyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Specialty");
+                    b.Navigation("SpecialtyName");
 
                     b.Navigation("user");
                 });
@@ -555,21 +521,6 @@ namespace DocLink.Infrastructure.Migrations
                     b.HasOne("DocLink.Domain.Entities.LanguageSpoken", null)
                         .WithMany()
                         .HasForeignKey("LanguagesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DoctorTimeSlot", b =>
-                {
-                    b.HasOne("DocLink.Domain.Entities.Doctor", null)
-                        .WithMany()
-                        .HasForeignKey("DoctorsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DocLink.Domain.Entities.TimeSlot", null)
-                        .WithMany()
-                        .HasForeignKey("TimeSlotsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -637,9 +588,14 @@ namespace DocLink.Infrastructure.Migrations
                     b.Navigation("Appointments");
                 });
 
-            modelBuilder.Entity("DocLink.Domain.Entities.Specialty", b =>
+            modelBuilder.Entity("DocLink.Domain.Entities.SpecialtyName", b =>
                 {
                     b.Navigation("Doctors");
+                });
+
+            modelBuilder.Entity("DocLink.Domain.Entities.TimeSlot", b =>
+                {
+                    b.Navigation("Appointments");
                 });
 #pragma warning restore 612, 618
         }

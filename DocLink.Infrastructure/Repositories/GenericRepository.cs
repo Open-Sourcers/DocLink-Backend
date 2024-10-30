@@ -32,7 +32,7 @@ namespace DocLink.Infrastructure.Repositories
         public async Task<IReadOnlyList<TEntity>> GetAllWithSpecAsync(ISpecifications<TEntity, TKey> spec)
         => await ApplySpecification(spec).ToListAsync();
 
-        public async Task<TEntity> GetByIdAsync(int id)
+        public async Task<TEntity> GetByIdAsync(TKey id)
         => (await _dbSet.FindAsync(id))!;
 
         public async Task<TEntity> GetEntityWithSpecAsync(ISpecifications<TEntity, TKey> spec)
