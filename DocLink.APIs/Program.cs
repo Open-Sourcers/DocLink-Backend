@@ -26,7 +26,7 @@ namespace DocLink.APIs
 
             await AutoUpdateDatabase.ApplyMigrations(app);
 
-            if (app.Environment.IsDevelopment())
+            //if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
