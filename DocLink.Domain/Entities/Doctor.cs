@@ -4,6 +4,7 @@
     {
         public AppUser user { get; set; }
         public int YearsOfExperience { get; set; }
+        public int RatersCount { get; set; }
         public float Rate { get; set; }
         public string? About { get; set; }
         public bool IsOnline { get; set; }

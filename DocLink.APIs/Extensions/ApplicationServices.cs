@@ -84,6 +84,7 @@ namespace DocLink.APIs.Extensions
 			Services.AddScoped<IEmailSender, EmailSender>();
 			Services.AddScoped<IUnitOfWork, UnitOfWork>();
 			Services.AddScoped<IDoctorService, DoctorService>();
+			Services.AddScoped<IPatientService, PatientServices>();
 			Services.AddHttpContextAccessor();
 			Services.AddScoped<IMedia, Media>();
 			#endregion
@@ -92,6 +93,7 @@ namespace DocLink.APIs.Extensions
 			Services.AddMapster();
 			MapsterConfig.Configure();
 			DoctorProfile.Configure();
+			PatientConfig.configure();
 			#endregion
 
 			#region Error Handling
