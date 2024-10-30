@@ -32,7 +32,7 @@ namespace DocLink.APIs.Controllers
 			return Ok(await _doctor.GetDoctorById(Id));
 		}
 
-		[Authorize(Roles =nameof(Roles.Admin))]
+		//[Authorize(Roles =nameof(Roles.Admin))]
 		[HttpPost("CreateDoctorAccount")]
 		public async Task<ActionResult<BaseResponse<bool>>> CreateDoctorAccount(CreateDoctorDto doctor)
 		{

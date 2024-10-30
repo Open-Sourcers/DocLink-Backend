@@ -4,6 +4,7 @@ using DocLink.Domain.DTOs.AuthDtos.External_Logins.Facebook;
 using DocLink.Domain.DTOs.AuthDtos.External_Logins.Google;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Interfaces;
+using DocLink.Domain.Interfaces.Repositories;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Domain.Interfaces.Services.Exteranl_Logins;
 using DocLink.Domain.Responses.Genaric;
@@ -20,6 +21,8 @@ namespace DocLink.Application.Services
         private readonly IEmailSender _emailSender;
         private readonly IGoogleAuthService _googleAuthService;
         private readonly IFacebookAuthService _facebookAuthService;
+        private readonly IPatientService _patientService;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheService _cache;
 
 		public AccountService(UserManager<AppUser> userManager,
@@ -28,6 +31,8 @@ namespace DocLink.Application.Services
 							  IEmailSender emailSender,
 							  IGoogleAuthService googleAuthService,
 							  IFacebookAuthService facebookAuthService,
+                              IPatientService patientService,
+                              IUnitOfWork unitOfWork,
 							  ICacheService cache)
 		{
 			_userManager = userManager;
@@ -36,7 +41,9 @@ namespace DocLink.Application.Services
 			_emailSender = emailSender;
 			_googleAuthService = googleAuthService;
 			_facebookAuthService = facebookAuthService;
-			_cache = cache;
+            _patientService = patientService;
+            _unitOfWork = unitOfWork;
+            _cache = cache;
 		}
 
 		public async Task<BaseResponse<ConfirmEmailResponse>> ConfirmEmailAsync(ConfirmEmailDto confirmEmail)
@@ -116,7 +123,15 @@ namespace DocLink.Application.Services
                 var Response = new BaseResponse<JwtTokenResponse>(null,StatusCodes.Status500InternalServerError,errors);
                 return Response;
             }
-
+            var patient = new Patient()
+            {
+                Id = newUser.Id,
+                Gender = User.Gender,
+                BirthDay = User.BirthDay,
+                EmergencyContact = User.EmergencyContact
+            };
+            await _unitOfWork.Repository<Patient, string>().AddAsync(patient);
+            await _unitOfWork.SaveAsync();
             var token = await _tokenService.GenerateTokenAsync(newUser, _userManager);
             var data = new JwtTokenResponse { Token = token };
 			return new BaseResponse<JwtTokenResponse>(data, "Registeration done successfully");
