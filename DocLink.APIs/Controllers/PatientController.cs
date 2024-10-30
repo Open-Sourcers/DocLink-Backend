@@ -21,66 +21,45 @@ namespace DocLink.APIs.Controllers
         public async Task<ActionResult> GetPatient(string patientId)
         {
 
-            try
-            {
-                var patient = await _patientService.GetPatientById(patientId);
+            var patient = await _patientService.GetPatientById(patientId);
 
-                if (patient == null)
-                {
-                    _logger.LogWarning("Patient with ID: {PatientId} not found", patientId);
-                    return NotFound("Patient not found");
-                }
-
-                return Ok(patient);
-            }
-            catch (Exception ex)
+            if (patient.StatusCode != 200)
             {
-                _logger.LogError(ex, "An error occurred while getting patient with ID: {PatientId}", patientId);
-                return StatusCode(500, "An error occurred while retrieving the patient");
+                _logger.LogWarning("Patient with ID: {PatientId} not found", patientId);
+                return StatusCode(patient.StatusCode,patient);
             }
+
+            return Ok(patient);
+
         }
 
         [HttpPut("UpdatePatient")]
         public async Task<ActionResult>UpdatePatient([FromForm]UpdatePatientDto updatePatientDto)
         {
-            try
+
+            var result = await _patientService.UpdatePatient(updatePatientDto);
+
+            if (result.StatusCode != 200)
             {
-
-                var result = await _patientService.UpdatePatient(updatePatientDto);
-
-                if (result.StatusCode != 200)
-                {
-                    _logger.LogWarning("Failed to update patient with ID: {PatientId}. Error: {Error}", updatePatientDto.Id, result.Errors);
-                    return StatusCode(result.StatusCode, result.Errors);
-                }
-
-                return Ok(result);
+                _logger.LogWarning("Failed to update patient with ID: {PatientId}. Error: {Error}", updatePatientDto.Id, result.Errors);
+                return StatusCode(result.StatusCode, result);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while updating patient with ID: {PatientId}", updatePatientDto.Id);
-                return StatusCode(500, "An error occurred while updating the patient");
-            }
+
+            return Ok(result);
         }
 
         [HttpPost("AddRate")]
         public async Task<ActionResult> AddRate(string DoctorId, float stars)
         {
-            try
+            
+            var result = await _patientService.AddRate(DoctorId, stars);
+            if (result.StatusCode != 200)
             {
-                var result = await _patientService.AddRate(DoctorId, stars);
-                if (result.StatusCode != 200)
-                {
-                    _logger.LogWarning("Failed to save the rate with doctor id {DoctorId}", DoctorId);
-                    return StatusCode(result.StatusCode, result.Errors);
-                }
-                return Ok(result);
+                _logger.LogWarning("Failed to save the rate with doctor id {DoctorId}", DoctorId);
+                return StatusCode(result.StatusCode, result);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while adding rate to doctor with ID: {DoctorId}", DoctorId);
-                return StatusCode(500, "An error occurred while adding rate to doctor");
-            }
+            return Ok(result);
+             
         }
     }
 }
