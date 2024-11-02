@@ -40,7 +40,7 @@ namespace DocLink.Application.Services
 
             doctor.Rate = ((doctor.Rate * doctor.RatersCount) + stars) / (doctor.RatersCount + 1);
             doctor.RatersCount++;
-
+            _unitOfWork.Repository<Doctor, string>().Update(doctor);
             var Result = await _unitOfWork.SaveAsync();
             if (Result <= 0) return new BaseResponse<bool>("Error has been occured save Rating", StatusCodes.Status500InternalServerError, null);
             return new BaseResponse<bool>(true, "Rating has been successfully saved");
