@@ -37,7 +37,7 @@ namespace DocLink.APIs.Extensions
 			Services.AddDbContext<DocLinkDbContext>(options =>
 			{
 				options.UseSqlServer(Configuration.GetConnectionString("DataBaseConnection"));
-				//options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+				options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 			});
 
 			#endregion
