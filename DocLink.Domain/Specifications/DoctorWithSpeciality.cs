@@ -14,7 +14,6 @@ namespace DocLink.Domain.Specifications
 			if (user) Includes.Add(x => x.user);
 			if (specialty) Includes.Add(x => x.Specialty);
 			if (language) Includes.Add(x => x.Languages);
-			if (qualification) Includes.Add(x => x.Languages);
 			if (qualification) Includes.Add(x => x.Qualifications);
 		}
 	}
