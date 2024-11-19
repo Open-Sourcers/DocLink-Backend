@@ -10,7 +10,7 @@ namespace DocLink.Domain.Specifications
 {
 	public class LanguageWithSpec : BaseSpecification<LanguageSpoken, int>
 	{
-		public LanguageWithSpec(string lang) : base(L => L.Name == lang)
+		public LanguageWithSpec(int langId) : base(L => L.Id == langId)
 		{
 			Includes.Add(x => x.Doctors);
 		}

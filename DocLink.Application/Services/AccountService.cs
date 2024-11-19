@@ -3,6 +3,7 @@ using DocLink.Domain.DTOs.AuthDtos.External_Logins;
 using DocLink.Domain.DTOs.AuthDtos.External_Logins.Facebook;
 using DocLink.Domain.DTOs.AuthDtos.External_Logins.Google;
 using DocLink.Domain.Entities;
+using DocLink.Domain.Enums;
 using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Repositories;
 using DocLink.Domain.Interfaces.Services;
@@ -21,7 +22,6 @@ namespace DocLink.Application.Services
         private readonly IEmailSender _emailSender;
         private readonly IGoogleAuthService _googleAuthService;
         private readonly IFacebookAuthService _facebookAuthService;
-        private readonly IPatientService _patientService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheService _cache;
 
@@ -31,7 +31,6 @@ namespace DocLink.Application.Services
 							  IEmailSender emailSender,
 							  IGoogleAuthService googleAuthService,
 							  IFacebookAuthService facebookAuthService,
-                              IPatientService patientService,
                               IUnitOfWork unitOfWork,
 							  ICacheService cache)
 		{
@@ -41,7 +40,6 @@ namespace DocLink.Application.Services
 			_emailSender = emailSender;
 			_googleAuthService = googleAuthService;
 			_facebookAuthService = facebookAuthService;
-            _patientService = patientService;
             _unitOfWork = unitOfWork;
             _cache = cache;
 		}
@@ -64,7 +62,7 @@ namespace DocLink.Application.Services
 			
 			var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            var Data = new ConfirmEmailResponse { Token = token, Email = user.Email };
+            var Data = new ConfirmEmailResponse { Token = token, Email = user.Email! };
 
 			return new BaseResponse<ConfirmEmailResponse>(Data, StatusCodes.Status200OK, "Email confirmed successfully.");
 		}
@@ -87,7 +85,6 @@ namespace DocLink.Application.Services
             return new BaseResponse<PasswordResetTokenDto>(response , "Check Your Email to get OTP");
         }
 
-
         public async Task<BaseResponse<JwtTokenResponse>> LoginAsync(UserToLogInDto User)
         {
             var user = await _userManager.FindByEmailAsync(User.Email);
@@ -104,7 +101,6 @@ namespace DocLink.Application.Services
             return new BaseResponse<JwtTokenResponse>(data , "Successfully logged in");
         }
 
-
         public async Task<BaseResponse<JwtTokenResponse>> RegisterAsync(UserToRegisterDto User)
         {
             var newUser = new AppUser()
@@ -120,7 +116,7 @@ namespace DocLink.Application.Services
             if (!Result.Succeeded)
             {
                 var errors = Result.Errors.Select(E => E.Description).ToList(); // try to use identityResult.Errors it self ?
-                var Response = new BaseResponse<JwtTokenResponse>(null,StatusCodes.Status500InternalServerError,errors);
+                var Response = new BaseResponse<JwtTokenResponse>(null!,StatusCodes.Status500InternalServerError,errors);
                 return Response;
             }
             var patient = new Patient()
@@ -132,9 +128,18 @@ namespace DocLink.Application.Services
             };
             await _unitOfWork.Repository<Patient, string>().AddAsync(patient);
             await _unitOfWork.SaveAsync();
-            var token = await _tokenService.GenerateTokenAsync(newUser, _userManager);
+
+            var user = await _userManager.FindByIdAsync(patient.Id);
+
+			var identityResult = await _userManager.AddToRoleAsync(user!, Roles.Patient.ToString());
+			if (!identityResult.Succeeded)
+			{
+				return new BaseResponse<JwtTokenResponse>("Internal server error", StatusCodes.Status500InternalServerError);
+			}
+
+			var token = await _tokenService.GenerateTokenAsync(newUser, _userManager);
             var data = new JwtTokenResponse { Token = token };
-			return new BaseResponse<JwtTokenResponse>(data, "Registeration done successfully");
+			return new BaseResponse<JwtTokenResponse>(data, "Registration done successfully");
 		}
 
         public async Task<BaseResponse<bool>> ResetPasswordAsync(ResetPasswordDto resetPassword)
@@ -156,8 +161,6 @@ namespace DocLink.Application.Services
             return new BaseResponse<bool>(true,StatusCodes.Status200OK, "Password has updated Successfully.");
         }
 
-
-
         public async Task<BaseResponse<JwtTokenResponse>> SignInWithFacebook(FacebookSignInDto model)
         {
 
@@ -171,7 +174,6 @@ namespace DocLink.Application.Services
 
            return new BaseResponse<JwtTokenResponse>(Data);
         }
-
 
         public async Task<BaseResponse<JwtTokenResponse>> SignInWithGoogle(GoogleSignInDto Model)
         {
