@@ -27,7 +27,6 @@ namespace DocLink.Application.Utility
 			{
 				return null!;
 			}
-
 			return (await _userManager.FindByEmailAsync(userEmail))!;
 		}
 	}

@@ -17,7 +17,7 @@ namespace DocLink.Domain.DTOs.DoctorDtos
 		public string? About { get; set; }
 		public decimal ConsultationFee { get; set; }
 		public int SpecialtyId { get; set; }
-		public List<string> DoctorLanguages { get; set; } = new List<string>();
+		public List<int> DoctorLanguages { get; set; } = new List<int>();
 		public List<string> Qualifications { get; set; }= new List<string>();	
 
 	}
