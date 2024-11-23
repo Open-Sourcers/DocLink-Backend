@@ -1,39 +1,47 @@
-
 using DocLink.APIs.Extensions;
-using DocLink.Domain.Entities;
-using DocLink.Infrastructure.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using DocLink.Domain.Interfaces.Interfaces;
+using DocLink.Domain.Interfaces.Services;
+using DocLink.Infrastructure.Extention;
+using DocLink.Infrastructure.Services.Email;
+using Serilog;
 
 namespace DocLink.APIs
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            // Add services to the container.
+
             builder.Services.AddControllers();
 
+            builder.Services.AddFluentEmailServices(builder.Configuration);
+
             builder.Services.AddApplicationServices(builder.Configuration);
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerConfigurations();
             builder.Services.AddSwaggerGen();
             builder.Services.AddJwtService(builder.Configuration);
+
+            var logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
+            builder.Logging.AddSerilog(logger);
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            await AutoUpdateDatabase.ApplyMigrations(app);
+
+
+            if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
+            app.UseExceptionHandler();
 
             app.MapControllers();
 

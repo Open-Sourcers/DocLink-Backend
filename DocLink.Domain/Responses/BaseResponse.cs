@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace DocLink.Domain.Responses
 {
@@ -12,12 +13,19 @@ namespace DocLink.Domain.Responses
         public string? Message { get; set; }
         public IEnumerable<string> Errors { get; set; }
         public object? Data { get; set; }
+        public BaseResponse() { }
         public BaseResponse(IEnumerable<string> errors, int _statusCode = 400) : this(_statusCode)
         {
             Errors = new List<string>();
             Errors = errors;
         }
 
+        public BaseResponse(IEnumerable<string> errors, string _massage)
+        {
+            Errors = new List<string>();
+            Errors = errors;
+            Message = _massage;
+        }
         public BaseResponse(int _statusCode, string? _massage = null)
         {
             StatusCode = _statusCode;

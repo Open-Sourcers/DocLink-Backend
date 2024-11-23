@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DocLink.Infrastructure.Migrations
 {
-    [DbContext(typeof(DLDbContext))]
+    [DbContext(typeof(DocLinkDbContext))]
     [Migration("20241004120705_AddDayColumnInAbailabilityTable")]
     partial class AddDayColumnInAbailabilityTable
     {
@@ -271,7 +271,7 @@ namespace DocLink.Infrastructure.Migrations
                     b.ToTable("Qualifications");
                 });
 
-            modelBuilder.Entity("DocLink.Domain.Entities.Specialty", b =>
+            modelBuilder.Entity("DocLink.Domain.Entities.SpecialtyName", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -515,7 +515,7 @@ namespace DocLink.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DocLink.Domain.Entities.Specialty", "Specialty")
+                    b.HasOne("DocLink.Domain.Entities.SpecialtyName", "SpecialtyName")
                         .WithMany("Doctors")
                         .HasForeignKey("SpecialtyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -523,7 +523,7 @@ namespace DocLink.Infrastructure.Migrations
 
                     b.Navigation("Account");
 
-                    b.Navigation("Specialty");
+                    b.Navigation("SpecialtyName");
                 });
 
             modelBuilder.Entity("DocLink.Domain.Entities.Patient", b =>
@@ -641,7 +641,7 @@ namespace DocLink.Infrastructure.Migrations
                     b.Navigation("Appointments");
                 });
 
-            modelBuilder.Entity("DocLink.Domain.Entities.Specialty", b =>
+            modelBuilder.Entity("DocLink.Domain.Entities.SpecialtyName", b =>
                 {
                     b.Navigation("Doctors");
                 });
