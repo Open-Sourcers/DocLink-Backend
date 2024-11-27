@@ -1,4 +1,5 @@
 ﻿using DocLink.Domain.DTOs.DoctorDtos;
+using DocLink.Domain.DTOs.SpecialtyDto;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Enums;
 using DocLink.Domain.Interfaces.Interfaces;
@@ -22,6 +23,7 @@ namespace DocLink.Application.Services
 		private readonly IMedia _media;
 		private readonly IEmailSender _sendEmail;
 		private readonly IMapper _mapper;
+
 		public DoctorService(IUnitOfWork unitOfWork, UserManager<AppUser> userManager, IMedia media, IEmailSender sendEmail, IMapper mapper)
 		{
 			_unitOfWork = unitOfWork;
@@ -47,7 +49,6 @@ namespace DocLink.Application.Services
 			await _sendEmail.SendDoctorAccount(doctor.Email, doctor.Password);
 			return new BaseResponse<bool>(true, StatusCodes.Status200OK, "Account has been created successfully.");
 		}
-
 		public async Task<BaseResponse<bool>> DeleteDoctor(string id)
 		{
 			var user = await _userManager.FindByIdAsync(id);
@@ -58,7 +59,16 @@ namespace DocLink.Application.Services
 			await _userManager.DeleteAsync(user);
 			return new BaseResponse<bool>(true, StatusCodes.Status200OK, "User has been deleted successfully.");
 		}
+		public async Task<BaseResponse<IReadOnlyList<SpecialtyDto>>> GetAllSpecialties()
+		{
+			var specialties = await _unitOfWork.Repository<Specialty, int>().GetAllAsync();
+			if (!specialties.Any())
+			{
+				return new BaseResponse<IReadOnlyList<SpecialtyDto>>("There is not specialty found!", StatusCodes.Status404NotFound);
+			}
 
+			return new BaseResponse<IReadOnlyList<SpecialtyDto>>(_mapper.Map<IReadOnlyList<SpecialtyDto>>(specialties));
+		}
 		public async Task<BaseResponse<DoctorDto>> GetDoctorById(string id)
 		{
 			var spec = new DoctorWithRelatedData(id, user: true, specialty: true);
@@ -67,28 +77,24 @@ namespace DocLink.Application.Services
 
 			return new BaseResponse<DoctorDto>(_mapper.Map<DoctorDto>(doctor));
 		}
-
 		public async Task<BaseResponse<IReadOnlyList<DoctorLanguageDto>>> GetDoctorLanguages(string id)
 		{
 			var spec = new DoctorWithRelatedData(id, language: true);
 			var Doctor = await _unitOfWork.Repository<Doctor, string>().GetEntityWithSpecAsync(spec);
 			return new BaseResponse<IReadOnlyList<DoctorLanguageDto>>(_mapper.Map<IReadOnlyList<DoctorLanguageDto>>(Doctor.Languages));
 		}
-
 		public async Task<BaseResponse<IReadOnlyList<DoctorQualificationsDto>>> GetDoctorQualifications(string id)
 		{
 			var spec = new DoctorWithRelatedData(id, qualification: true);
 			var Doctor = await _unitOfWork.Repository<Doctor, string>().GetEntityWithSpecAsync(spec);
 			return new BaseResponse<IReadOnlyList<DoctorQualificationsDto>>(_mapper.Map<IReadOnlyList<DoctorQualificationsDto>>(Doctor.Qualifications));
 		}
-
 		public async Task<BaseResponse<IReadOnlyList<DoctorDto>>> GetDoctorsWithSpec(DoctorParams param)
 		{
 			var spec = new DoctorWithSpec(param);
 			var doctors = await _unitOfWork.Repository<Doctor, string>().GetAllWithSpecAsync(spec);
 			return new BaseResponse<IReadOnlyList<DoctorDto>>(_mapper.Map<IReadOnlyList<DoctorDto>>(doctors));
 		}
-
 		public async Task<BaseResponse<DoctorDto>> UpdateDoctor(UpdateDoctorDto doctor)
 		{
 			var user = await _userManager.FindByIdAsync(doctor.Id);
@@ -116,38 +122,44 @@ namespace DocLink.Application.Services
 			if (isUpdated == null)
 			{
 				await _unitOfWork.Repository<Doctor, string>().AddAsync(CreateOrUpdate);
+				IsFoundSpecialtyId.NumberOfDoctors++;
+				_unitOfWork.Repository<Specialty, int>().Update(IsFoundSpecialtyId);
 				await _unitOfWork.SaveAsync();
 				return new BaseResponse<DoctorDto>(_mapper.Map<DoctorDto>(CreateOrUpdate), StatusCodes.Status200OK, "Account has been updated successfully.");
 			}
-			//_unitOfWork.Repository<Doctor, string>().Update(CreateOrUpdate);
-
 
 			List<LanguageSpoken> languages = new List<LanguageSpoken>();
 			foreach (var i in doctor.DoctorLanguages)
 			{
-				if (!isUpdated.Languages.Any(l => l.Id == i))
+				if (isUpdated.Languages.Any(l => l.Id == i)) continue;
+
+				var language = await _unitOfWork.Repository<LanguageSpoken, int>().GetByIdAsync(i);
+				if (language == null)
 				{
-					var language = await _unitOfWork.Repository<LanguageSpoken, int>().GetByIdAsync(i);
-					if (language == null)
-					{
-						return new BaseResponse<DoctorDto>($"Invalid language id: {i}", StatusCodes.Status400BadRequest);
-					}
-					languages.Add(language);
+					return new BaseResponse<DoctorDto>($"Invalid language id: {i}", StatusCodes.Status400BadRequest);
 				}
+				languages.Add(language);
 
 			}
 			foreach (var lang in languages)
 			{
 				isUpdated.Languages.Add(lang);
 			}
-
-			foreach(var i in doctor.Qualifications)
-			{
-				isUpdated.Qualifications.Add(new Qualification { Name=i});
-			}
-
 			await _unitOfWork.SaveAsync();
 
+			foreach (var i in doctor.Qualifications)
+			{
+				isUpdated.Qualifications.Add(new Qualification { Name = i });
+			}
+			_unitOfWork.Repository<Doctor, string>().Update(isUpdated);
+			try
+			{
+				await _unitOfWork.SaveAsync();// Exception throwen
+			}
+			catch (Exception ex)
+			{
+				return new BaseResponse<DoctorDto>(ex.Message, StatusCodes.Status400BadRequest);
+			}
 			var specDock = new DoctorWithRelatedData(doctor.Id, user: true, specialty: true);
 			var dock = await _unitOfWork.Repository<Doctor, string>().GetEntityWithSpecAsync(specDock);
 			return new BaseResponse<DoctorDto>(_mapper.Map<DoctorDto>(dock), StatusCodes.Status200OK, "Account has been updated successfully.");
