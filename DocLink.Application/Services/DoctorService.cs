@@ -49,6 +49,25 @@ namespace DocLink.Application.Services
 			await _sendEmail.SendDoctorAccount(doctor.Email, doctor.Password);
 			return new BaseResponse<bool>(true, StatusCodes.Status200OK, "Account has been created successfully.");
 		}
+
+		public async Task<BaseResponse<SpecialtyDto>> CreateSpecialty(CreateSpecialtyDto specialty)
+		{
+			var spec = new SpecialtyWithSpec(name: specialty.Name);
+			var isFoundSpecialty = await _unitOfWork.Repository<Specialty, int>().GetEntityWithSpecAsync(spec);
+			if (isFoundSpecialty != null)
+			{
+				return new BaseResponse<SpecialtyDto>("Specialty already exist", StatusCodes.Status400BadRequest);
+			}
+			var newSpecialty = new Specialty
+			{
+				Name = specialty.Name,
+				ImageUrl = _media.UploadFile(specialty.Image, nameof(Specialty)),
+			};
+			await _unitOfWork.Repository<Specialty, int>().AddAsync(newSpecialty);
+			await _unitOfWork.SaveAsync();
+			return new BaseResponse<SpecialtyDto>(_mapper.Map<SpecialtyDto>(newSpecialty));
+		}
+
 		public async Task<BaseResponse<bool>> DeleteDoctor(string id)
 		{
 			var user = await _userManager.FindByIdAsync(id);
