@@ -37,7 +37,7 @@ namespace DocLink.APIs.Extensions
 			Services.AddDbContext<DocLinkDbContext>(options =>
 			{
 				options.UseSqlServer(Configuration.GetConnectionString("DataBaseConnection"));
-				options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+				//options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 			});
 
 			#endregion
@@ -92,7 +92,7 @@ namespace DocLink.APIs.Extensions
 			#region Mapster Registration
 			Services.AddMapster();
 			MapsterConfig.Configure();
-			DoctorProfile.Configure();
+			DoctorProfile.Configure(Configuration);
 			PatientConfig.configure();
 			#endregion
 

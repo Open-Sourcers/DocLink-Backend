@@ -1,4 +1,5 @@
 ﻿using DocLink.Domain.DTOs.DoctorDtos;
+using DocLink.Domain.DTOs.SpecialtyDto;
 using DocLink.Domain.Responses.Genaric;
 using DocLink.Domain.Specifications;
 using System;
@@ -18,5 +19,6 @@ namespace DocLink.Domain.Interfaces.Services.Exteranl_Logins
 		Task<BaseResponse<DoctorDto>> GetDoctorById(string id);
 		Task<BaseResponse<IReadOnlyList<DoctorLanguageDto>>> GetDoctorLanguages(string id);
 		Task<BaseResponse<IReadOnlyList<DoctorQualificationsDto>>> GetDoctorQualifications(string id);
+		Task<BaseResponse<IReadOnlyList<SpecialtyDto>>> GetAllSpecialties();
 	}
 }

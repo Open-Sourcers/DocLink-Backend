@@ -18,7 +18,7 @@ namespace DocLink.APIs.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = nameof(Roles.Patient))]
+    //  [Authorize(Roles = nameof(Roles.Patient))]
         [ProducesResponseType<BaseResponse<bool>>(200)]
         public async Task<IActionResult> SetAppointment(CreateAppointmentDto appointment)
         {
@@ -30,8 +30,9 @@ namespace DocLink.APIs.Controllers
             return Ok(Response);
         }
 
+
         [HttpGet("AppointmentDetails")]
-        [Authorize(Roles = nameof(Roles.Patient))]
+     // [Authorize(Roles = nameof(Roles.Patient))]
         [ProducesResponseType<BaseResponse<AppointmentDetailsDTO>>(200)]
         public async Task<IActionResult> GetAppointmentDetails(int AppointmentID)
         {
@@ -43,8 +44,9 @@ namespace DocLink.APIs.Controllers
             return Ok(Response);
         }
 
+
         [HttpGet("Appointments")]
-        [Authorize(Roles = nameof(Roles.Patient))]
+     // [Authorize(Roles = nameof(Roles.Patient))]
         [ProducesResponseType<BaseResponse<IReadOnlyList<AppointmentDetailsDTO>>>(200)]
         public async Task<IActionResult> GetAppointments(AppointmentFilterRequestDto appointmentFilterRequestDto)
         {
@@ -57,7 +59,7 @@ namespace DocLink.APIs.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = nameof(Roles.Patient))]
+     // [Authorize(Roles = nameof(Roles.Patient))]
         [ProducesResponseType<BaseResponse<bool>>(200)]
         public async Task<IActionResult> ReScheduleAppointment(ScheduleAppointmentDto scheduleAppointmentDto)
         {
@@ -70,7 +72,7 @@ namespace DocLink.APIs.Controllers
         }
 
         [HttpGet("TimeSlotsStatus")]
-        [Authorize(Roles = nameof(Roles.Patient))]
+     // [Authorize(Roles = nameof(Roles.Patient))]
         [ProducesResponseType<BaseResponse<int>>(200)]
         public async Task<IActionResult> GetTimeSlotsStatus(DoctorTimeSlotRequestDto slotRequestDto)
         {
@@ -84,7 +86,7 @@ namespace DocLink.APIs.Controllers
         }
 
         [HttpDelete]
-        [Authorize(Roles = nameof(Roles.Patient))]
+     // [Authorize(Roles = nameof(Roles.Patient))]
         [ProducesResponseType<BaseResponse<bool>>(200)]
         public async Task<IActionResult> DeleteAppointment(int AppointmentID)
         {
