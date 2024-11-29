@@ -58,17 +58,23 @@ namespace DocLink.APIs.Controllers
 		{
 			return Ok(await _doctor.GetDoctorLanguages(id));
 		}
-		
+
 		[HttpGet("GetDoctorQualifications")]
 		public async Task<ActionResult<BaseResponse<IReadOnlyList<DoctorQualificationsDto>>>> GetDoctorQualifications(string id)
 		{
 			return Ok(await _doctor.GetDoctorQualifications(id));
 		}
-		
+
 		[HttpGet("GetSpecialties")]
 		public async Task<ActionResult<BaseResponse<IReadOnlyList<SpecialtyDto>>>> GetSpecialties()
 		{
 			return Ok(await _doctor.GetAllSpecialties());
+		}
+
+		[HttpPost("CreateSpecialty")]
+		public async Task<ActionResult<SpecialtyDto>> CreateSpecialty(CreateSpecialtyDto specialty)
+		{
+			return Ok(await _doctor.CreateSpecialty(specialty));
 		}
 
 	}

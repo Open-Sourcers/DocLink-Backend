@@ -1,6 +1,7 @@
 ﻿using DocLink.Domain.DTOs.SpecialtyDto;
 using DocLink.Domain.Entities;
 using Mapster;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,9 +13,11 @@ namespace DocLink.Application.MappingProfile
 {
 	public class SpecialtyProfile
 	{
-		public static void configure()
+		public static void configure(IConfiguration config)
 		{
-			TypeAdapterConfig<Specialty, SpecialtyDto>.NewConfig();
+			TypeAdapterConfig<Specialty, SpecialtyDto>.NewConfig()
+				.Map(dest => dest.ImageUrl, src => $"{config["BaseUrl"]}{src.ImageUrl}");
+
 		}
 	}
 }
