@@ -93,6 +93,7 @@ namespace DocLink.APIs.Extensions
 			Services.AddMapster();
 			MapsterConfig.Configure();
 			DoctorProfile.Configure(Configuration);
+			SpecialtyProfile.configure(Configuration);
 			PatientConfig.configure();
 			#endregion
 
