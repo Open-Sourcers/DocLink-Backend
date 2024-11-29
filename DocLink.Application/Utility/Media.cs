@@ -16,12 +16,13 @@ namespace DocLink.Application.Utility
 			string current = Directory.GetCurrentDirectory();
 			string fileName = $"{Guid.NewGuid()}{file.FileName}";
 
-			string fullFilePath = Path.Combine(current, "wwwroot", "Images", folderName, fileName);
+			string fullFilePath = Path.Combine(current,"wwwroot", "Images", folderName, fileName);
+			string subPath = Path.Combine("Images", folderName, fileName);
 
-			var FileStreem = new FileStream(fullFilePath, FileMode.Create);
-			file.CopyTo(FileStreem);
-			FileStreem.Close();
-			return fullFilePath.Replace('\\','/');
+			var FileStream = new FileStream(fullFilePath, FileMode.Create);
+			file.CopyTo(FileStream);
+			FileStream.Close();
+			return subPath.Replace('\\','/');
 		}
 		public void DeleteFile(string folderName, string? fileName)
 		{

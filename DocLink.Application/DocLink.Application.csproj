@@ -14,4 +14,8 @@
     <ProjectReference Include="..\DocLink.Domain\DocLink.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Utility\Imagegs\Doctor\" />
+  </ItemGroup>
+
 </Project>
