@@ -87,6 +87,7 @@ namespace DocLink.APIs.Extensions
 			Services.AddScoped<IPatientService, PatientServices>();
 			Services.AddHttpContextAccessor();
 			Services.AddScoped<IMedia, Media>();
+			Services.AddScoped<IChatService, ChatService>();
 			#endregion
 
 			#region Mapster Registration
