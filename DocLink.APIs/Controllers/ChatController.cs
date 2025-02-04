@@ -3,12 +3,14 @@ using DocLink.Application.Hubs;
 using DocLink.Domain.DTOs.ChatDtos;
 using DocLink.Domain.Entities;
 using DocLink.Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
 namespace DocLink.APIs.Controllers
 {
+    [Authorize]
     public class ChatController : BaseController
     {
         private readonly IChatService _chatService;
