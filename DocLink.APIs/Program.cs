@@ -1,4 +1,5 @@
 using DocLink.APIs.Extensions;
+using DocLink.Application.Hubs;
 using DocLink.Domain.Interfaces.Interfaces;
 using DocLink.Domain.Interfaces.Services;
 using DocLink.Infrastructure.Extention;
@@ -23,8 +24,9 @@ namespace DocLink.APIs
 			builder.Services.AddSwaggerConfigurations();
 			builder.Services.AddSwaggerGen();
 			builder.Services.AddJwtService(builder.Configuration);
+            builder.Services.AddSignalR();
 
-			var logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
+            var logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
 			builder.Logging.AddSerilog(logger);
 
 			var app = builder.Build();
@@ -43,7 +45,8 @@ namespace DocLink.APIs
 			app.UseAuthorization();
 			app.UseExceptionHandler();
 			app.MapControllers();
-			app.Run();
+            app.MapHub<ChatHub>("/chatHub");
+            app.Run();
 		}
 	}
 }
