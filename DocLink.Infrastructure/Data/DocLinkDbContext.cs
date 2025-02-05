@@ -69,6 +69,6 @@ namespace DocLink.Infrastructure.Data
         public DbSet<Qualification> Qualifications { get; set; }
         public DbSet<Specialty> Specialties { get; set; }
         public DbSet<TimeSlot> TimeSlots { get; set; }
-
+        public DbSet<ChatMessage> ChatMessages { get; set; }
     }
 }

@@ -45,6 +45,9 @@ namespace DocLink.APIs.Extensions
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero // To Strict validation of token expiration
                     };
+
+                    o.AddSignalRSupport("/ChatHub");
+
                 }).AddGoogle(googleOptions =>
                 {
                     googleOptions.ClientId = configuration["Google:ClientId"];
